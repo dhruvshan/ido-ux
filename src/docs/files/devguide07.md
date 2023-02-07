@@ -2,11 +2,16 @@
 
 #### When does the auction end?
 
-The auction will always end at the predefined time set by the auctioneer. Each auction page has a countdown until the auction ending (timer in the orange circle).
+The auction will always end at the predefined time set by the auctioneer. Each auction page has a countdown (a circular orange timer).
 
 #### How is the final price calculated?
 
 The final clearing price will be the price where the supply and demand curve intersect. (In the graph, it's where the red supply line meets the green demand curve, indicated by the white dashed line).
+
+Bidders are ordered in this format:
+1. Price
+2. Bid amount (amount of tokens the bidder is willing to buy)
+3. User ID (auto generated index created when a user connects their wallet)
 
 <img src="/assets/BosonScreenShot.png" alt="drawing" width="500"/>
 
@@ -16,7 +21,7 @@ If the final clearing price was higher than your limit order price, you will rec
 
 **Here is one example:**
 
-There is an auction ETH for DAI
+Let's imagine there is an auction selling ETH for DAI
 - You place a limit order of 1000 DAI with a limit price of 4000 DAI per ETH
 - If the clearing price ends up being 5000 DAI per ETH, you will receive your 1000 DAI back
 - If the clearing price ends up being 3000 DAI per ETH, you will receive 1000* 1/3000 ETH = 1/3 ETH
@@ -24,7 +29,7 @@ There is an auction ETH for DAI
 
 #### How do I claim my tokens from the auction?
 
-Bidders: After the auction has ended, and the settlement transaction has been mined, you can click on the `claim` button on the interface.
+Bidders: After the auction has ended, and the settlement transaction has been executed, click on the `claim` button on the interface.
 
 Auctioneers: After the auction time has ended, submit the transaction to settle the auction. Find an [example of the command here](https://ido-ux.dev.gnosisdev.com/#/docs/participate-as-auctioneer#topAnchor).
 

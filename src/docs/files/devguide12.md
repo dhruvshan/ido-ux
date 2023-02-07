@@ -4,7 +4,7 @@
 
 Gnosis Auction offers a unique method to sell vested tokens. Vested tokens allow projects and investors to align incentives over a longer period and hence are a great bootstrapping tool for new projects.
 
-Vested tokens implementations are not trivial, as the vesting period can be bypassed if the sell is not done properly. E.g., if the vested token distribution allows smart contract addresses to participate, any claim on future vested tokens can be tokenized with special smart contract. These tokenized claims would then allow everyone to trade the vested tokens immediately. Gnosis Auction has a unique feature that allows the auctioneer to allowlist only EOA account, which can not tokenize any future claims in a trustless setup. This ensures that the vested tokens sold can not be made liquid without any further trust assumptions.
+Note that vested token implementations are not trivial, as the vesting period can be bypassed if the sale is not carried out properly. E.g., if the vested token distribution allows smart contract addresses to participate, any claim on future vested tokens can be tokenized with special smart contract. These tokenized claims would then allow everyone to trade the vested tokens immediately. Gnosis Auction has a unique feature that allows the auctioneer to allowlist only EOA account, which can not tokenize any future claims in a trustless setup. This ensures that the vested tokens sold can not be made liquid without any further trust assumptions.
 
 #### Vested token contracts
 

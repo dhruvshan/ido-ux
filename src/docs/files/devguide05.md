@@ -1,6 +1,6 @@
 ### How to participate as a bidder
 
-Gnosis Auction is a platform enabling fair price discovery for token distributions. The aim is to make it easy to discover a fair price for their token through the format of a batch auction. To participate as a bidder, you have to the following:
+Gnosis Auction is a platform enabling fair price discovery for token distributions. The aim is to make it easy to discover a fair price for their token through the format of a batch auction. To participate as a bidder, you have to perform the following:
 
 #### Connect Wallet
 
@@ -12,7 +12,7 @@ Gnosis Auction is a platform enabling fair price discovery for token distributio
 
 <img src="/assets/GA2.png" alt="drawing" width="500"/>
 
-3. After selecting the wallet, in this case, Metamask, a Connect Request will appear. In the case of Metamask, you would need to pick what account (Address) you would like to connect with, and click “Next”.
+3. After selecting the wallet (in this case, Metamask) a connection request will appear. Pick the account (Address) you would like to connect with, and click “Next”.
 
 <img src="/assets/GA3.png" alt="drawing" width="500"/>
 
@@ -22,24 +22,24 @@ Gnosis Auction is a platform enabling fair price discovery for token distributio
 
 #### Selecting Auctions
 
-5. After all these steps, you have now successfully connected to the Gnosis Auction dapp. From the UI you will be able to differentiate between two sections. The top section of the UI shows the highlighted auctions that are taking place, while the bottom section of the UI will show you the full list of Auctions that are taking place or have taken place on the platform.
-
-- If you want to participate in one auction that is in the highlighted section, you just have to click anywhere in the box and you will be redirected to the auction.
-- If you want to participate in one auction, that is the all auction section, you have to click on the “side-arrow” button and you will be redirected to the auction.
+5. After all these steps, you have now successfully connected to the Gnosis Auction dapp. The landing page has two key sections: Highlighted Auctions and Current Auctions
+- To participate in a Highlighted auction, simply click on the auction box.
+- To participate in a Current Auction, click on the “>" button and to redirected to that auction.
 
 <img src="/assets/GA5.png" alt="drawing" width="500"/>
 
 #### Bidding in an Auction
 
-After you have decided the auction you want to participate in, and click on it, you are redirected to the screen below (Keep in mind that the data shown in the below picture will vary for each auction, as all the auctions taking place are independent of each other).
-
-The UI can be dissected in three parts:
-
-- On the top section, you have the main parameters of the auction
-- On the right-hand side, you have data about the ongoing auction, as well as the price graph.
-- On the left-hand side, you can see the parameters you need to fill in to place an order in the auction.
+A typical auction page looks like below:
 
 <img src="/assets/GA6.png" alt="drawing" width="500"/>
+
+This page contains 3 key sections:
+
+- At the top, we have the Auction Details. These include key parameters regarding the auction.
+- Secondly, we have the Place Order section. Here you can place an order as well as track the current price of the token.
+- Finally, the Your Order section allows bidders to see the token orders they have placed for the auction.
+
 
 But, let's go into details about what each section of the UI means.
 
