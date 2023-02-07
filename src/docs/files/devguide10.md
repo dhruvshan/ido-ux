@@ -1,9 +1,10 @@
 ### Numeric Example of How Gnosis Auction price finding mechanism works
 
-Imagine that we have an Auction where the auctioneer would like to auction 15 tokens, and has established that the minimum bid has to be 0.1. Once the auction is concluded, there have been 5 different bid orders, which are ordered by price in the table below.
+Imagine that we have an Auction where the auctioneer would like to auction 15 tokens, and has established the minimum bid price to be 0.1. Once the auction is concluded, there have been 5 different bid orders, which are ordered by price in the table below.
 
 | Bid Number | Bid Size | Bid price |
 | ---------- | -------- | --------- |
+| 1          | 2        | 20
 | 2          | 4        | 11        |
 | 3          | 3        | 2         |
 | 4          | 7        | 0.5       |
@@ -54,7 +55,7 @@ Clearing price of the auction is 0.5
 
 Bider distribution:
 
-Bidder 1 gets 4 tokens
-Bidder 2 gets 8 tokens
+Bidder 1 gets 4 tokens (2/0.5)
+Bidder 2 gets 8 tokens (4/0.5)
 Bidder 3 gets the remaining 3 tokens
-Bidder 4 doesn't get any tokens
+Bidder 4 and 5 don't receive any tokens

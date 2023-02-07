@@ -72,7 +72,7 @@ const AuctionsBlock = styled.div`
   margin: 0 auto;
   max-width: 100%;
   min-height: 340px;
-  padding: 20px;
+  padding: 0px 20px 0 20px;
   width: 400px;
 
   @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
@@ -113,7 +113,7 @@ const BlockGrid = styled.div`
   @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
     grid-template-columns: 1fr 1fr;
     margin-bottom: 120px;
-    padding: 0 50px;
+    padding: 0 0px;
   }
 `
 
@@ -238,12 +238,12 @@ export const Landing: React.FC = () => {
             fair price for all participants.
           </Text>
         </TextBlock>
-        <ImageBlock align="left">
+        <ImageBlock align="right">
           <ShapeIcon1 />
         </ImageBlock>
       </BlockGrid>
       <BlockGrid>
-        <ImageBlock align="right">
+        <ImageBlock align="left">
           <ShapeIcon2 />
         </ImageBlock>
         <TextBlock>
@@ -263,7 +263,7 @@ export const Landing: React.FC = () => {
             running a simple script.
           </Text>
         </TextBlock>
-        <ImageBlock align="left">
+        <ImageBlock align="right">
           <ShapeIcon3 />
         </ImageBlock>
       </BlockGrid>

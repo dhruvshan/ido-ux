@@ -2,13 +2,13 @@
 
 Gnosis Auction is a platform for conducting fair, transparent, and decentralized token price discovery.
 
-Gnosis Auction enables Batch auctions for everyone, it aims to provide a resilient and easy-to-use tool that enables anybody to auction ERC-20 tokens on Ethereum.
+Gnosis Auction enables Batch auctions for everyone. It aims to provide a resilient and easy-to-use tool that enables anybody to auction ERC-20 tokens on Ethereum.
 
 #### Batch Auctions
 
-Batch auctions are a fair pricing method that has been battle tested in traditional finance. Some of its uses include everydays Open auction in the NYSE, Direct listings, as well as in IPOs (Google being the most prominent).
+Batch auctions are a fair pricing method that has been battle tested in traditional finance. Some of its uses include everyday Open Auctions in the NYSE, Direct Listings, as well as IPOs (Google being the most prominent).
 
-Gnosis Auction’s mechanism adds few major benefits over existing approaches available today on Ethereum like fixed price sales, Dutch Auctions, IBCO or Balancer LBP. Gnosis Auction is front running resistant, offers user friendly bidding experience, enables users full control over their participation price, and offers a fair single clearing price.
+Gnosis Auction’s mechanism adds major benefits over existing approaches available today on Ethereum like fixed price sales, Dutch Auctions, IBCO or Balancer LBP. Gnosis Auction is front-running resistant, offers an user friendly bidding experience, enables users full control over their participation price, and offers a transparent single clearing price.
 
 #### Benefits
 
