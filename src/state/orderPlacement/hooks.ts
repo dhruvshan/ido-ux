@@ -6,6 +6,14 @@ import { parseUnits } from '@ethersproject/units'
 import { Fraction, JSBI, Token, TokenAmount } from '@josojo/honeyswap-sdk'
 import { useDispatch, useSelector } from 'react-redux'
 
+import {
+  invertPrice,
+  priceInput,
+  sellAmountInput,
+  setDefaultsFromURLSearch,
+  setNoDefaultNetworkId,
+} from './actions'
+import { AuctionIdentifier } from './reducer'
 import { additionalServiceApi } from '../../api'
 import easyAuctionABI from '../../constants/abis/easyAuction/easyAuction.json'
 import { NUMBER_OF_DIGITS_FOR_INVERSION } from '../../constants/config'
@@ -26,14 +34,6 @@ import { resetUserPrice, resetUserVolume } from '../orderbook/actions'
 import { useOrderActionHandlers } from '../orders/hooks'
 import { OrderDisplay, OrderStatus } from '../orders/reducer'
 import { useTokenBalancesTreatWETHAsETH } from '../wallet/hooks'
-import {
-  invertPrice,
-  priceInput,
-  sellAmountInput,
-  setDefaultsFromURLSearch,
-  setNoDefaultNetworkId,
-} from './actions'
-import { AuctionIdentifier } from './reducer'
 
 const logger = getLogger('orderPlacement/hooks')
 
@@ -324,7 +324,7 @@ export function useDeriveAuctioningAndBiddingToken(auctionIdentifer: AuctionIden
         : new Token(
             chainId as ChainId,
             auctionDetails.addressAuctioningToken,
-            parseInt(auctionDetails.decimalsAuctioningToken, 16),
+            parseInt(auctionDetails.decimalsAuctioningToken, 10),
             auctionDetails.symbolAuctioningToken,
           ),
     [chainId, auctionDetails],
@@ -337,7 +337,7 @@ export function useDeriveAuctioningAndBiddingToken(auctionIdentifer: AuctionIden
         : new Token(
             chainId as ChainId,
             auctionDetails.addressBiddingToken,
-            parseInt(auctionDetails.decimalsBiddingToken, 16),
+            parseInt(auctionDetails.decimalsBiddingToken, 10),
             auctionDetails.symbolBiddingToken,
           ),
     [chainId, auctionDetails],
@@ -371,7 +371,8 @@ export function useDerivedAuctionInfo(
   const { chainId } = auctionIdentifier
   const { auctionDetails, auctionInfoLoading } = useAuctionDetails(auctionIdentifier)
   const { clearingPriceInfo, loadingClearingPrice } = useClearingPriceInfo(auctionIdentifier)
-  const auctionState = useDeriveAuctionState(auctionDetails)
+
+  const auctionState = useDeriveAuctionState(auctionDetails, auctionIdentifier)
 
   const isLoading = auctionInfoLoading || loadingClearingPrice
   const noAuctionData = !auctionDetails || !clearingPriceInfo
@@ -383,7 +384,7 @@ export function useDerivedAuctionInfo(
         : new Token(
             chainId as ChainId,
             auctionDetails.addressAuctioningToken,
-            parseInt(auctionDetails.decimalsAuctioningToken, 16),
+            parseInt(auctionDetails.decimalsAuctioningToken, 10),
             auctionDetails.symbolAuctioningToken,
           ),
     [auctionDetails, chainId],
@@ -396,7 +397,7 @@ export function useDerivedAuctionInfo(
         : new Token(
             chainId as ChainId,
             auctionDetails.addressBiddingToken,
-            parseInt(auctionDetails.decimalsBiddingToken, 16),
+            parseInt(auctionDetails.decimalsBiddingToken, 10),
             auctionDetails.symbolBiddingToken,
           ),
     [auctionDetails, chainId],
@@ -474,11 +475,12 @@ export function useDerivedAuctionInfo(
 
 export function useDeriveAuctionState(
   auctionDetails: AuctionInfoDetail | null | undefined,
+  auctionIdentifier: AuctionIdentifier,
 ): Maybe<AuctionState> {
   const [currentState, setCurrentState] = useState<Maybe<AuctionState>>(null)
   const { clearingPriceSellOrder } = useOnChainAuctionData({
-    auctionId: auctionDetails?.auctionId ?? 0,
-    chainId: Number(auctionDetails?.chainId ?? '1'),
+    auctionId: auctionDetails?.auctionId ?? auctionIdentifier.auctionId,
+    chainId: Number(auctionDetails?.chainId ?? auctionIdentifier?.chainId),
   })
 
   const getCurrentState = useCallback(() => {

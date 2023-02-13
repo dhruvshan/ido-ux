@@ -3,11 +3,11 @@ import { useCallback, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { addTransaction } from './actions'
+import { TransactionDetails, TransactionState } from './reducer'
 import { useActiveWeb3React } from '../../hooks'
 import { getLogger } from '../../utils/logger'
 import { AppDispatch, AppState } from '../index'
-import { addTransaction } from './actions'
-import { TransactionDetails, TransactionState } from './reducer'
 
 const logger = getLogger('TX Debug Hooks')
 

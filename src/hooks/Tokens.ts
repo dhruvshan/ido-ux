@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Token, WETH } from '@josojo/honeyswap-sdk'
 
+import { useActiveWeb3React } from './index'
 import { ALL_TOKENS } from '../constants/tokens'
 import { useAddUserToken, useFetchTokenByAddress, useUserAddedTokens } from '../state/user/hooks'
 import { ChainId, isAddress } from '../utils'
-import { useActiveWeb3React } from './index'
 
 export function useAllTokens(): { [address: string]: Token } {
   const { chainId } = useActiveWeb3React()

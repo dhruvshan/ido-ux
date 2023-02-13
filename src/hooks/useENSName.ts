@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { isAddress } from '../utils'
 import { useActiveWeb3React } from './index'
+import { isAddress } from '../utils'
 
 /**
  * Does a reverse lookup for an address to find its ENS name.

@@ -1,7 +1,7 @@
 import { Fraction, JSBI } from '@josojo/honeyswap-sdk'
 
-import { PricePoint } from '../../../api/AdditionalServicesApi'
 import { CalculatorClearingPrice, findClearingPrice } from './'
+import { PricePoint } from '../../../api/AdditionalServicesApi'
 
 // Calculate Clearing Price
 export default describe('findClearingPrice', () => {

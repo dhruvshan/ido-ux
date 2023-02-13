@@ -38,7 +38,7 @@ export enum ChainId {
 
 export const EASY_AUCTION_NETWORKS: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101',
-  [ChainId.GÖRLI]: '0x1fbab40c338e2e7243da945820ba680c92ef8281',
+  [ChainId.GÖRLI]: '0x1fBAb40C338E2e7243DA945820Ba680C92EF8281',
   [ChainId.XDAI]: '0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101',
   [ChainId.MATIC]: '0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101',
 }
@@ -244,20 +244,20 @@ export function getFullTokenDisplay(token: Token, chainId: ChainId): string {
 }
 
 export function isTokenXDAI(tokenAddress?: string, chainId?: ChainId): boolean {
-  return !!tokenAddress && !!chainId && tokenAddress == WETH[chainId].address && chainId === 100
+  return !!tokenAddress && !!chainId && tokenAddress == WETH[chainId]?.address && chainId === 100
 }
 
 export function isTokenWETH(tokenAddress?: string, chainId?: ChainId): boolean {
   return (
     !!tokenAddress &&
     !!chainId &&
-    tokenAddress == WETH[chainId].address &&
+    tokenAddress == WETH[chainId]?.address &&
     (chainId === 1 || chainId === 5)
   )
 }
 
 export function isTokenWMATIC(tokenAddress?: string, chainId?: ChainId): boolean {
-  return !!tokenAddress && !!chainId && tokenAddress == WETH[chainId].address && chainId === 137
+  return !!tokenAddress && !!chainId && tokenAddress == WETH[chainId]?.address && chainId === 137
 }
 
 export function isTimeout(timeId: NodeJS.Timeout | undefined): timeId is NodeJS.Timeout {

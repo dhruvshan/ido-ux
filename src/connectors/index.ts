@@ -4,8 +4,8 @@ import { NetworkConnector } from '@web3-react/network-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 
-import { NETWORK_URL_MAINNET, PORTIS_ID } from '../constants/config'
 import { ChainId, NETWORK_CONFIGS } from './../utils/index'
+import { NETWORK_URL_MAINNET, PORTIS_ID } from '../constants/config'
 
 const POLLING_INTERVAL = 10000
 

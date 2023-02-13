@@ -6,9 +6,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useActiveWeb3React } from '../../hooks'
-import { useBlockNumber } from '../application/hooks'
-import { AppDispatch, AppState } from '../index'
 import {
   Call,
   ListenerOptions,
@@ -17,6 +14,9 @@ import {
   removeMulticallListeners,
   toCallKey,
 } from './actions'
+import { useActiveWeb3React } from '../../hooks'
+import { useBlockNumber } from '../application/hooks'
+import { AppDispatch, AppState } from '../index'
 
 export interface Result extends ReadonlyArray<any> {
   readonly [key: string]: any

@@ -3,12 +3,12 @@ import { useMemo } from 'react'
 import { Contract } from '@ethersproject/contracts'
 import { abi as IUniswapV2PairABI } from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 
+import { useActiveWeb3React } from './index'
 import ERC20_ABI from '../constants/abis/erc20.json'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { V1_EXCHANGE_ABI, V1_FACTORY_ABI, V1_FACTORY_ADDRESS } from '../constants/v1'
 import { ChainId, getContract } from '../utils'
 import { getLogger } from '../utils/logger'
-import { useActiveWeb3React } from './index'
 
 const logger = getLogger('useContract')
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
+import { AuctionInfo } from './useAllAuctionInfos'
 import { additionalServiceApi } from '../api'
 import { getLogger } from '../utils/logger'
-import { AuctionInfo } from './useAllAuctionInfos'
 
 const logger = getLogger('useInterestingAuctionInfo')
 

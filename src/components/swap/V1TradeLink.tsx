@@ -3,9 +3,9 @@ import { ThemeContext } from 'styled-components'
 
 import { Text } from 'rebass'
 
-import { ExternalLink } from '../../theme'
 import { YellowCard } from './Card'
 import { AutoColumn } from './Column'
+import { ExternalLink } from '../../theme'
 
 export default function V1TradeLink({ v1TradeLinkIfBetter }: { v1TradeLinkIfBetter: string }) {
   const theme = useContext(ThemeContext)

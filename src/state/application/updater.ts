@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { useDispatch } from 'react-redux'
 
+import { updateBlockNumber } from './actions'
 import { useActiveWeb3React } from '../../hooks'
 import useDebounce from '../../hooks/useDebounce'
 import useIsWindowVisible from '../../hooks/useIsWindowVisible'
 import { getLogger } from '../../utils/logger'
-import { updateBlockNumber } from './actions'
 
 const logger = getLogger('Updater')
 

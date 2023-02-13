@@ -6,6 +6,7 @@ import * as CSS from 'csstype'
 import round from 'lodash.round'
 import { Scrollbars } from 'react-custom-scrollbars'
 
+import { buildTableData } from './helpers'
 import { NUMBER_OF_DIGITS_FOR_INVERSION } from '../../../constants/config'
 import { DerivedAuctionInfo, useOrderPlacementState } from '../../../state/orderPlacement/hooks'
 import { useOrderbookState } from '../../../state/orderbook/hooks'
@@ -18,7 +19,6 @@ import { BaseCard } from '../../pureStyledComponents/BaseCard'
 import { Cell } from '../../pureStyledComponents/Cell'
 import { EmptyContentText, EmptyContentWrapper } from '../../pureStyledComponents/EmptyContent'
 import { Row } from '../../pureStyledComponents/Row'
-import { buildTableData } from './helpers'
 
 export interface Props {
   tableData?: any[]

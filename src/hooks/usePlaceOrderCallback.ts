@@ -5,11 +5,13 @@ import { Contract, ContractFunction } from '@ethersproject/contracts'
 import { Web3Provider } from '@ethersproject/providers'
 import { Token } from '@josojo/honeyswap-sdk'
 
+import { encodeOrder } from './Order'
+import { useActiveWeb3React } from './index'
+import { useGasPrice } from './useGasPrice'
+import { useGetUserId } from './useGetUserId'
 import { additionalServiceApi } from '../api'
 import depositAndPlaceOrderABI from '../constants/abis/easyAuction/depositAndPlaceOrder.json'
-import easyAuctionABI from '../constants/abis/easyAuction/easyAuction.json'
 import { NUMBER_OF_DIGITS_FOR_INVERSION } from '../constants/config'
-import { Result, useSingleCallResult } from '../state/multicall/hooks'
 import { useOrderPlacementState } from '../state/orderPlacement/hooks'
 import { AuctionIdentifier } from '../state/orderPlacement/reducer'
 import { useOrderbookActionHandlers } from '../state/orderbook/hooks'
@@ -19,7 +21,6 @@ import { useTransactionAdder } from '../state/transactions/hooks'
 import {
   ChainId,
   DEPOSIT_AND_PLACE_ORDER,
-  EASY_AUCTION_NETWORKS,
   calculateGasMargin,
   getContract,
   getEasyAuctionContract,
@@ -31,10 +32,6 @@ import {
 import { getLogger } from '../utils/logger'
 import { abbreviation } from '../utils/numeral'
 import { convertPriceIntoBuyAndSellAmount, getInverse } from '../utils/prices'
-import { encodeOrder } from './Order'
-import { useActiveWeb3React } from './index'
-import { useContract } from './useContract'
-import { useGasPrice } from './useGasPrice'
 
 const logger = getLogger('usePlaceOrderCallback')
 
@@ -72,19 +69,13 @@ export function usePlaceOrderCallback(
       : priceFromSwapState
   ).toString()
 
-  const easyAuctionInstance: Maybe<Contract> = useContract(
-    EASY_AUCTION_NETWORKS[chainId as ChainId],
-    easyAuctionABI,
-  )
-  const userId: Result | undefined = useSingleCallResult(easyAuctionInstance, 'getUserId', [
-    account == null ? undefined : account,
-  ]).result
+  const userId: Maybe<string> = useGetUserId(account == null ? undefined : account)
 
   return useMemo(() => {
     let previousOrder: string
 
     return async function onPlaceOrder() {
-      if (!chainId || !library || !account || !userId || !signature) {
+      if (!chainId || !library || !account || !signature) {
         throw new Error('missing dependencies in onPlaceOrder callback')
       }
 
@@ -151,7 +142,7 @@ export function usePlaceOrderCallback(
           const order = {
             buyAmount: buyAmountScaled,
             sellAmount: sellAmountScaled,
-            userId: BigNumber.from(parseInt(userId.toString())), // If many people are placing orders, this might be incorrect
+            userId: BigNumber.from(parseInt(userId?.toString() || '0')), // If many people are placing orders, this might be incorrect
           }
           onNewOrder([
             {

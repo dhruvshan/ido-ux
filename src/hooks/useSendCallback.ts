@@ -4,14 +4,14 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { JSBI, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
 
+import { useActiveWeb3React } from './index'
+import { useTokenContract } from './useContract'
+import useENSName from './useENSName'
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { useTokenBalanceTreatingWETHasETHonXDAI } from '../state/wallet/hooks'
 import { ChainId, calculateGasMargin, getSigner, isAddress } from '../utils'
 import { getLogger } from '../utils/logger'
 import { abbreviation } from '../utils/numeral'
-import { useActiveWeb3React } from './index'
-import { useTokenContract } from './useContract'
-import useENSName from './useENSName'
 
 const logger = getLogger('useSendCallback')
 

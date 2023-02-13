@@ -1,36 +1,71 @@
+import {
+  ApolloClient,
+  ApolloQueryResult,
+  DocumentNode,
+  InMemoryCache,
+  NormalizedCacheObject,
+  gql,
+} from '@apollo/client'
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { Order, decodeOrder, encodeOrder } from '../hooks/Order'
+import {
+  GET_ALL_AUCTION_DETAILS,
+  GET_ALL_AUCTION_DETAILS_WITH_USER_PARTICIPATION,
+  GET_AUCTION_DETAIL,
+  GET_CLEARING_ORDER_AND_VOLUME,
+  GET_DETAILS_OF_MOST_INTERESTING_AUCTIONS,
+  GET_DETAILS_OF_MOST_INTERESTING_CLOSED_AUCTIONS,
+  GET_ORDER_BOOK_DISPLAY,
+  GET_PREVIOUS_ORDER,
+  GET_USER_ID,
+  GET_USER_ORDERS,
+  GET_USER_ORDERS_WITHOUT_CLAIMED,
+} from './Queries'
+import { formatAuctionInfoDetailFromApi, formatAuctionInfoFromApi } from './helpers'
+import {
+  PINATA_API_KEY,
+  PINATA_BASE_URL,
+  PINATA_QUERY_URL,
+  PINATA_SECRET_API_KEY,
+} from '../constants/config'
+import { Order, encodeOrder } from '../hooks/Order'
 import { AuctionInfo } from '../hooks/useAllAuctionInfos'
 import { AuctionInfoDetail } from '../hooks/useAuctionDetails'
+import { queueStartElement } from '../hooks/usePlaceOrderCallback'
+import lit, { getChainName } from '../utils/lit'
 import { getLogger } from '../utils/logger'
 
 const logger = getLogger('AdditionalServicesApi')
 
 export interface AdditionalServicesApi {
-  getOrderBookUrl(params: OrderBookParams): string
+  getOrderBookDisplayQuery(): DocumentNode
   getOrderBookData(params: OrderBookParams): Promise<OrderBookData>
-  getPreviousOrderUrl(params: PreviousOrderParams): string
+  getPreviousOrderQuery(): DocumentNode
   getPreviousOrder(params: PreviousOrderParams): Promise<string>
-  getCurrentUserOrdersUrl(params: UserOrderParams): string
+  getCurrentUserOrdersQuery(): DocumentNode
   getCurrentUserOrders(params: UserOrderParams): Promise<string[]>
-  getAllUserOrdersUrl(params: UserOrderParams): string
+  getAllUserOrdersQuery(): DocumentNode
   getAllUserOrders(params: UserOrderParams): Promise<string[]>
-  getMostInterestingAuctionDetailsUrl(params: InterestingAuctionParams): string
-  getMostInterestingClosedAuctionDetailsUrl(params: InterestingAuctionParams): string
+  getMostInterestingAuctionDetailsQuery(): DocumentNode
+  getMostInterestingClosedAuctionDetailsQuery(): DocumentNode
   getMostInterestingAuctionDetails(closedAuctions?: boolean): Promise<AuctionInfo[]>
-  getAllAuctionDetailsUrl(networkId: number): string
+  getAllAuctionDetailsQuery(): DocumentNode
   getAllAuctionDetails(): Promise<AuctionInfo[]>
-  getAllAuctionDetailsWithUserParticipationUrl(
-    params: AuctionDetailWithUserParticipationParams,
-  ): string
+  getAllAuctionDetailsWithUserParticipationQuery(): DocumentNode
   getAllAuctionDetailsWithUserParticipation(account: string): Promise<AuctionInfo[]>
-  getClearingPriceOrderAndVolumeUrl(params: OrderBookParams): string
+  getClearingPriceOrderAndVolumeQuery(): DocumentNode
   getClearingPriceOrderAndVolume(params: OrderBookParams): Promise<ClearingPriceAndVolumeData>
+  getAuctionDetailQuery(): DocumentNode
   getAuctionDetails(params: AuctionDetailParams): Promise<AuctionInfoDetail>
-  getAuctionDetailsUrl(params: AuctionDetailParams): string
   getSignature(params: GetSignatureParams): Promise<string>
   getSignatureUrl(params: GetSignatureParams): string
+  getUserIdQuery(): DocumentNode
+  getUserId(params: GetUserIdParams): Promise<string>
+}
+
+interface GetUserIdParams {
+  networkId: number
+  address: string
 }
 
 interface GetSignatureParams {
@@ -42,11 +77,6 @@ interface GetSignatureParams {
 interface OrderBookParams {
   networkId: number
   auctionId: number
-}
-
-interface InterestingAuctionParams {
-  networkId: number
-  numberOfAuctions: number
 }
 
 interface PreviousOrderParams {
@@ -64,11 +94,6 @@ interface UserOrderParams {
 interface AuctionDetailParams {
   networkId: number
   auctionId: number
-}
-
-interface AuctionDetailWithUserParticipationParams {
-  networkId: number
-  account: string
 }
 
 /**
@@ -94,123 +119,89 @@ export interface ClearingPriceAndVolumeData {
 }
 export interface AdditionalServicesEndpoint {
   networkId: number
-  url_production: string
-  url_develop?: string
-}
-function getAdditionalServiceUrl(baseUrl: string): string {
-  return `${baseUrl}${baseUrl.endsWith('/') ? '' : '/'}api/v1/`
+  graph_url_production: string
+  graph_url_develop?: string
 }
 
 export type AdditionalServicesApiParams = AdditionalServicesEndpoint[]
 
 export class AdditionalServicesApiImpl implements AdditionalServicesApi {
-  private urlsByNetwork: { [networkId: number]: string } = {}
+  private clientsByNetwork: { [networkId: number]: ApolloClient<NormalizedCacheObject> } = {}
 
   public constructor(params: AdditionalServicesApiParams) {
     params.forEach((endpoint) => {
-      if (endpoint.url_develop || endpoint.url_production) {
-        this.urlsByNetwork[endpoint.networkId] = getAdditionalServiceUrl(
-          process.env.PRICE_ESTIMATOR_URL === 'production'
-            ? endpoint.url_production
-            : endpoint.url_develop || endpoint.url_production, // fallback on required url_production
-        )
+      if (endpoint.graph_url_develop || endpoint.graph_url_production) {
+        this.clientsByNetwork[endpoint.networkId] = new ApolloClient({
+          uri:
+            process.env.PRICE_ESTIMATOR_URL === 'production'
+              ? endpoint.graph_url_production
+              : endpoint.graph_url_develop || endpoint.graph_url_production,
+          cache: new InMemoryCache(),
+        })
       }
     })
   }
-  public getOrderBookUrl(params: OrderBookParams): string {
-    const { auctionId, networkId } = params
-
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_order_book_display_data/${auctionId}`
-    return url
+  public getOrderBookDisplayQuery(): DocumentNode {
+    return gql(GET_ORDER_BOOK_DISPLAY)
   }
 
-  public getClearingPriceOrderAndVolumeUrl(params: OrderBookParams): string {
-    const { auctionId, networkId } = params
-
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_clearing_order_and_volume/${auctionId}`
-    return url
+  public getClearingPriceOrderAndVolumeQuery(): DocumentNode {
+    return gql(GET_CLEARING_ORDER_AND_VOLUME)
   }
 
-  public getPreviousOrderUrl(params: PreviousOrderParams): string {
-    const { auctionId, networkId, order } = params
-
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_previous_order/${auctionId}/${encodeOrder(order)}`
-    return url
+  public getPreviousOrderQuery(): DocumentNode {
+    return gql(GET_PREVIOUS_ORDER)
   }
 
-  public getAllUserOrdersUrl(params: UserOrderParams): string {
-    const { auctionId, networkId, user } = params
-
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_user_orders/${auctionId}/${user}`
-    return url
+  public getAllUserOrdersQuery(): DocumentNode {
+    return gql(GET_USER_ORDERS)
   }
 
-  public getMostInterestingAuctionDetailsUrl(params: InterestingAuctionParams): string {
-    const { networkId, numberOfAuctions } = params
-
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_details_of_most_interesting_auctions/${numberOfAuctions}`
-    return url
+  public getMostInterestingAuctionDetailsQuery(): DocumentNode {
+    return gql(GET_DETAILS_OF_MOST_INTERESTING_AUCTIONS)
   }
 
-  public getMostInterestingClosedAuctionDetailsUrl(params: InterestingAuctionParams): string {
-    const { networkId, numberOfAuctions } = params
-
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_details_of_most_interesting_closed_auctions/${numberOfAuctions}`
-    return url
+  public getMostInterestingClosedAuctionDetailsQuery(): DocumentNode {
+    return gql(GET_DETAILS_OF_MOST_INTERESTING_CLOSED_AUCTIONS)
   }
 
-  public getAllAuctionDetailsUrl(networkId: number): string {
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_all_auction_with_details/`
-    return url
+  public getAllAuctionDetailsQuery(): DocumentNode {
+    return gql(GET_ALL_AUCTION_DETAILS)
   }
 
-  public getAllAuctionDetailsWithUserParticipationUrl(
-    params: AuctionDetailWithUserParticipationParams,
-  ): string {
-    const { account, networkId } = params
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_all_auction_with_details_with_user_participation/${account}`
-    return url
+  public getAllAuctionDetailsWithUserParticipationQuery(): DocumentNode {
+    return gql(GET_ALL_AUCTION_DETAILS_WITH_USER_PARTICIPATION)
   }
 
-  public getAuctionDetailsUrl(params: AuctionDetailParams): string {
-    const { auctionId, networkId } = params
-    const baseUrl = this._getBaseUrl(networkId)
+  public getAuctionDetailQuery(): DocumentNode {
+    return gql(GET_AUCTION_DETAIL)
+  }
 
-    return `${baseUrl}get_auction_with_details/${auctionId}`
+  public getUserIdQuery(): DocumentNode {
+    return gql(GET_USER_ID)
   }
 
   public async getAllAuctionDetailsWithUserParticipation(
     account: string,
   ): Promise<Maybe<AuctionInfo[]>> {
     try {
-      const promises: Promise<Response>[] = []
-      for (const networkId in this.urlsByNetwork) {
-        const url = await this.getAllAuctionDetailsWithUserParticipationUrl({
-          networkId: Number(networkId),
-          account,
-        })
+      const promises: Promise<ApolloQueryResult<any>>[] = []
+      for (const networkId in this.clientsByNetwork) {
+        const client = this._getApolloClient(networkId)
+        const query = this.getAllAuctionDetailsWithUserParticipationQuery()
 
-        promises.push(fetch(url))
+        promises.push(
+          client.query({
+            query,
+            variables: {
+              userAddress: account,
+            },
+          }),
+        )
       }
       // The Promise.allSettled() method returns a promise that resolves
       // after all of the given promises have either fulfilled or rejected.
-      const results: PromiseSettledResult<Response>[] = await Promise.allSettled(promises)
+      const results = await Promise.allSettled(promises)
 
       const allAuctions = []
       for (const res of results) {
@@ -219,15 +210,20 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
         }
 
         if (res.status === 'fulfilled') {
-          if (!res.value.ok) {
+          if (res.value.error) {
             // backend returns {"message":"invalid url query"}
             // for bad requests
             logger.error(
               'Error getting all auction details with user participation: ',
-              res.value.json(),
+              res.value.error,
             )
           } else {
-            allAuctions.push(await res.value.json())
+            allAuctions.push(
+              await res.value.data.auctionDetails.map((auction: AuctionInfo) => ({
+                ...auction,
+                hasParticipation: !!auction.orders?.length,
+              })),
+            )
           }
         }
       }
@@ -239,22 +235,18 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
     }
   }
 
-  public getCurrentUserOrdersUrl(params: UserOrderParams): string {
-    const { auctionId, networkId, user } = params
-
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = `${baseUrl}get_user_orders_without_canceled_or_claimed/${auctionId}/${user}`
-    return url
+  public getCurrentUserOrdersQuery(): DocumentNode {
+    return gql(GET_USER_ORDERS_WITHOUT_CLAIMED)
   }
 
   public async getAllAuctionDetails(): Promise<Maybe<AuctionInfo[]>> {
     try {
-      const promises: Promise<Response>[] = []
-      for (const networkId in this.urlsByNetwork) {
-        const url = await this.getAllAuctionDetailsUrl(Number(networkId))
+      const promises: Promise<ApolloQueryResult<any>>[] = []
+      for (const networkId in this.clientsByNetwork) {
+        const client = this._getApolloClient(networkId)
+        const query = this.getAllAuctionDetailsQuery()
 
-        promises.push(fetch(url))
+        promises.push(client.query({ query }))
       }
       const results = await Promise.allSettled(promises)
       const allAuctions = []
@@ -263,15 +255,15 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
           logger.error('Error getting all auction details without user participation: ', res.reason)
         }
         if (res.status === 'fulfilled') {
-          if (!res.value.ok) {
+          if (res.value.error) {
             // backend returns {"message":"invalid url query"}
             // for bad requests
             logger.error(
               'Error getting all auction details without user participation: ',
-              res.value.json(),
+              res.value.error,
             )
           } else {
-            allAuctions.push(await res.value.json())
+            allAuctions.push(await res.value.data.auctionDetails)
           }
         }
       }
@@ -285,16 +277,22 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
 
   public async getAuctionDetails(params: AuctionDetailParams): Promise<AuctionInfoDetail> {
     try {
-      const url = await this.getAuctionDetailsUrl(params)
+      const query = this.getAuctionDetailQuery()
+      const client = this._getApolloClient(`${params.networkId}`)
 
-      const res = await fetch(url)
+      const res = await client.query({
+        query,
+        variables: {
+          id: params.auctionId,
+        },
+      })
 
-      if (!res.ok) {
+      if (res.error) {
         // backend returns {"message":"invalid url query"}
         // for bad requests
-        throw await res.json()
+        throw res.error
       }
-      return res.json()
+      return formatAuctionInfoDetailFromApi(res.data.auctionDetail)
     } catch (error) {
       logger.error(error)
 
@@ -310,22 +308,30 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
     closedAuctions = false,
   ): Promise<Maybe<AuctionInfo[]>> {
     try {
-      const promises: Promise<Response>[] = []
-      for (const networkId in this.urlsByNetwork) {
-        const fn = closedAuctions
-          ? this.getMostInterestingClosedAuctionDetailsUrl
-          : this.getMostInterestingAuctionDetailsUrl
-        const url = fn.bind(this)({
-          networkId: Number(networkId),
-          numberOfAuctions: 4,
-        })
+      const promises: Promise<ApolloQueryResult<any>>[] = []
+      for (const networkId in this.clientsByNetwork) {
+        const client = this._getApolloClient(networkId)
+        const query = closedAuctions
+          ? this.getMostInterestingClosedAuctionDetailsQuery()
+          : this.getMostInterestingAuctionDetailsQuery()
 
-        promises.push(fetch(url))
+        promises.push(
+          client.query({
+            query,
+            variables: {
+              // unix timestamp in seconds
+              currentTimeStamp: Math.round(new Date().getTime() / 1000),
+              count: 4,
+            },
+          }),
+        )
       }
 
       // The Promise.allSettled() method returns a promise that resolves
       // after all of the given promises have either fulfilled or rejected.
-      const results: PromiseSettledResult<Response>[] = await Promise.allSettled(promises)
+      const results: PromiseSettledResult<ApolloQueryResult<any>>[] = await Promise.allSettled(
+        promises,
+      )
       const allInterestingAuctions = []
       for (const res of results) {
         if (res.status === 'rejected') {
@@ -333,12 +339,16 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
         }
 
         if (res.status === 'fulfilled') {
-          if (!res.value.ok) {
+          if (res.value.error) {
             // backend returns {"message":"invalid url query"}
             // for bad requests
-            logger.error('Error getting most interesting auction details: ', res.value.json())
+            logger.error('Error getting most interesting auction details: ', res.value.error)
           } else {
-            allInterestingAuctions.push(await res.value.json())
+            allInterestingAuctions.push(
+              (await res.value.data.auctionDetails).map((auctionDetail) =>
+                formatAuctionInfoFromApi(auctionDetail),
+              ),
+            )
           }
         }
       }
@@ -355,15 +365,31 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
 
   public async getPreviousOrder(params: PreviousOrderParams): Promise<string> {
     try {
-      const url = await this.getPreviousOrderUrl(params)
+      const query = this.getPreviousOrderQuery()
+      const client = this._getApolloClient(`${params.networkId}`)
 
-      const res = await fetch(url)
-      if (!res.ok) {
+      const res = await client.query({
+        query,
+        variables: {
+          id: params.auctionId,
+        },
+      })
+
+      if (res.error) {
         // backend returns {"message":"invalid url query"}
         // for bad requests
-        throw await res.json()
+        throw res.error
       }
-      return await res.json()
+      let order = res.data.auctionDetail.orders[0]
+      if (!order) {
+        return queueStartElement
+      }
+      order = {
+        userId: BigNumber.from(order.userId),
+        buyAmount: BigNumber.from(order.buyAmount),
+        sellAmount: BigNumber.from(order.sellAmount),
+      }
+      return await encodeOrder(order)
     } catch (error) {
       logger.error(error)
 
@@ -377,17 +403,57 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
     }
   }
 
+  public async getUserId(params: GetUserIdParams): Promise<string> {
+    try {
+      const query = this.getUserIdQuery()
+      const client = this._getApolloClient(`${params.networkId}`)
+
+      const res = await client.query({
+        query,
+        variables: {
+          address: params.address,
+        },
+      })
+
+      if (res.error) {
+        throw res.error
+      }
+
+      return res.data.users[0]?.id
+    } catch (error) {
+      logger.error(error)
+
+      const { address } = params
+
+      throw new Error(`Failed to query for user id for address ${address}: ${error.message}`)
+    }
+  }
+
   public async getAllUserOrders(params: UserOrderParams): Promise<string[]> {
     try {
-      const url = await this.getAllUserOrdersUrl(params)
+      const query = this.getAllUserOrdersQuery()
+      const client = this._getApolloClient(`${params.networkId}`)
 
-      const res = await fetch(url)
-      if (!res.ok) {
+      const res = await client.query({
+        query,
+        variables: {
+          auctionId: params.auctionId,
+          userAddress: params.user,
+        },
+      })
+
+      if (res.error) {
         // backend returns {"message":"invalid url query"}
         // for bad requests
-        throw await res.json()
+        throw res.error
       }
-      return await res.json()
+      return res.data.auctionDetail.orders.map((order) =>
+        encodeOrder({
+          userId: BigNumber.from(order.userId),
+          buyAmount: BigNumber.from(order.buyAmount),
+          sellAmount: BigNumber.from(order.sellAmount),
+        }),
+      )
     } catch (error) {
       logger.error(error)
 
@@ -400,15 +466,22 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
   }
   public async getCurrentUserOrders(params: UserOrderParams): Promise<string[]> {
     try {
-      const url = await this.getCurrentUserOrdersUrl(params)
+      const query = this.getCurrentUserOrdersQuery()
+      const client = this._getApolloClient(`${params.networkId}`)
+      const res = await client.query({
+        query,
+        variables: {
+          auctionId: params.auctionId,
+          userId: params.user,
+        },
+      })
 
-      const res = await fetch(url)
-      if (!res.ok) {
+      if (res.error) {
         // backend returns {"message":"invalid url query"}
         // for bad requests
-        throw await res.json()
+        throw res.error
       }
-      return await res.json()
+      return res.data.auctionDetail.ordersWithoutClaimed
     } catch (error) {
       logger.error(error)
 
@@ -424,18 +497,48 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
     params: OrderBookParams,
   ): Promise<ClearingPriceAndVolumeData> {
     try {
-      const url = await this.getClearingPriceOrderAndVolumeUrl(params)
+      const query = this.getClearingPriceOrderAndVolumeQuery()
 
-      const res = await fetch(url)
-      if (!res.ok) {
+      const client = this._getApolloClient(`${params.networkId}`)
+
+      const res = await client.query({
+        query: query,
+        variables: {
+          id: params.auctionId,
+        },
+      })
+
+      if (res.error) {
         // backend returns {"message":"invalid url query"}
         // for bad requests
-        throw await res.json()
+        throw res.error
       }
-      const result = await res.json()
+      const auctionDetails = res.data.auctionDetail
+      if (
+        auctionDetails.currentClearingOrderSellAmount === '0' &&
+        auctionDetails.currentClearingOrderBuyAmount === '0'
+      ) {
+        return {
+          clearingOrder: {
+            sellAmount: BigNumber.from(auctionDetails.exactOrder.buyAmount),
+            buyAmount: BigNumber.from(auctionDetails.exactOrder.sellAmount),
+            userId: BigNumber.from('0'),
+          },
+          volume: BigNumber.from('0'),
+        }
+      }
       return {
-        clearingOrder: decodeOrder(result[0]),
-        volume: BigNumber.from(result[1]),
+        clearingOrder: {
+          sellAmount: BigNumber.from(auctionDetails.currentClearingOrderSellAmount),
+          buyAmount: BigNumber.from(auctionDetails.currentClearingOrderBuyAmount),
+          userId: BigNumber.from('0'),
+        },
+        volume: BigNumber.from(
+          Math.trunc(auctionDetails.currentVolume).toLocaleString('fullwide', {
+            useGrouping: false,
+            maximumSignificantDigits: 20,
+          }),
+        ),
       }
     } catch (error) {
       logger.error(error)
@@ -450,15 +553,35 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
 
   public async getOrderBookData(params: OrderBookParams): Promise<OrderBookData> {
     try {
-      const url = await this.getOrderBookUrl(params)
+      const query = this.getOrderBookDisplayQuery()
 
-      const res = await fetch(url)
-      if (!res.ok) {
+      const client = this._getApolloClient(`${params.networkId}`)
+
+      const res = await client.query({
+        query,
+        variables: {
+          id: params.auctionId,
+        },
+      })
+
+      if (res.error) {
         // backend returns {"message":"invalid url query"}
         // for bad requests
-        throw await res.json()
+        throw res.error
       }
-      return await res.json()
+      const exactOrder = await res.data.asks?.exactOrder
+      const asks = {
+        price: parseFloat(exactOrder.price),
+        volume: parseFloat(exactOrder.volume),
+      }
+      const bids = ((await res.data.bids?.orders) || []).map((bid) => ({
+        price: parseFloat(bid.price),
+        volume: parseFloat(bid.volume),
+      }))
+      return {
+        asks: [asks],
+        bids: bids,
+      }
     } catch (error) {
       logger.error(error)
 
@@ -472,56 +595,75 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
 
   public getSignatureUrl(params: GetSignatureParams): string {
     const { address, auctionId, networkId } = params
-    const baseUrl = this._getBaseUrl(networkId)
-    return `${baseUrl}get_signature/${auctionId}/${address}`
+    const baseUrl = PINATA_BASE_URL
+    return `${baseUrl}data/pinList?status=pinned&metadata[name]=${networkId}-${auctionId}-${address}`
   }
 
   public async getSignature(params: GetSignatureParams): Promise<string> {
     try {
       const url = await this.getSignatureUrl(params)
 
-      const res = await fetch(url)
+      const res = await fetch(url, {
+        headers: {
+          pinata_api_key: PINATA_API_KEY,
+          pinata_secret_api_key: PINATA_SECRET_API_KEY,
+        },
+      })
       if (!res.ok) {
         // backend returns {"message":"invalid url query"}
         // for bad requests
         throw await res.json()
       }
       const response = await res.json()
-      return response.includes('not available for user') ? '0x' : response
+      if (response.rows?.length === 0) {
+        return '0x'
+      }
+      const cidData = response.rows[0].ipfs_pin_hash
+      const metadata = response.rows[0].metadata
+      const address = metadata.keyvalues.address
+      if (!cidData) {
+        return '0x'
+      }
+      const baseUrl = PINATA_QUERY_URL
+      const signatureRes = await fetch(`${baseUrl}${cidData}`)
+      if (!signatureRes.ok) {
+        throw await res.json()
+      }
+      const { encryptedString, encryptedSymmetricKey } = await signatureRes.json()
+      const accessControlConditions = [
+        {
+          conditionType: 'evmBasic',
+          contractAddress: '',
+          standardContractType: '',
+          chain: getChainName(params.networkId),
+          method: '',
+          parameters: [':userAddress'],
+          returnValueTest: {
+            comparator: '=',
+            value: address,
+          },
+        },
+      ]
+      const decryptSignature = await lit.decryptString(
+        { encryptedString, encryptedSymmetricKey },
+        accessControlConditions,
+        getChainName(params.networkId),
+      )
+      return decryptSignature
     } catch (error) {
       logger.error(error)
       return null
     }
   }
 
-  private async query<T>(networkId: number, queryString: string): Promise<Maybe<T>> {
-    const baseUrl = this._getBaseUrl(networkId)
-
-    const url = baseUrl + queryString
-
-    const response = await fetch(url)
-
-    if (!response.ok) {
-      throw new Error(`Request failed: [${response.status}] ${response.body}`)
-    }
-
-    const body = await response.text()
-
-    if (!body) {
-      return null
-    }
-
-    return JSON.parse(body)
-  }
-
-  private _getBaseUrl(networkId: number): string {
-    const baseUrl = this.urlsByNetwork[networkId]
-    if (typeof baseUrl === 'undefined') {
+  private _getApolloClient(networkId: string): ApolloClient<NormalizedCacheObject> {
+    const client = this.clientsByNetwork[networkId]
+    if (typeof client === 'undefined') {
       throw new Error(
-        `REACT_APP_ADDITIONAL_SERVICES_API_URL must be a defined environment variable for network ${networkId}`,
+        `REACT_APP_GRAPH_API_URL must be a defined environment variable for network ${networkId}`,
       )
     }
 
-    return baseUrl
+    return client
   }
 }

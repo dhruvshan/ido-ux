@@ -1,7 +1,7 @@
 import { createAction } from '@reduxjs/toolkit'
 
-import { OrderBookData, PricePoint } from '../../api/AdditionalServicesApi'
 import { CalculatedAuctionPrice } from './hooks'
+import { OrderBookData, PricePoint } from '../../api/AdditionalServicesApi'
 
 export const appendBid = createAction<{
   order: PricePoint

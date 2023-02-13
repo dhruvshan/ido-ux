@@ -4,6 +4,9 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
 import { Fraction, Token } from '@josojo/honeyswap-sdk'
 
+import { decodeOrder } from './Order'
+import { useActiveWeb3React } from './index'
+import { useGasPrice } from './useGasPrice'
 import { chainNames } from '../constants'
 import { AuctionIdentifier } from '../state/orderPlacement/reducer'
 import { useOrderActionHandlers } from '../state/orders/hooks'
@@ -11,9 +14,6 @@ import { useTransactionAdder } from '../state/transactions/hooks'
 import { ChainId, calculateGasMargin, getEasyAuctionContract } from '../utils'
 import { getLogger } from '../utils/logger'
 import { abbreviation } from '../utils/numeral'
-import { decodeOrder } from './Order'
-import { useActiveWeb3React } from './index'
-import { useGasPrice } from './useGasPrice'
 
 const logger = getLogger('useCancelOrderCallback')
 

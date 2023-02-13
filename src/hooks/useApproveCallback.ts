@@ -4,13 +4,13 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
 import { TokenAmount } from '@josojo/honeyswap-sdk'
 
+import { useActiveWeb3React } from './index'
+import { useTokenContract } from './useContract'
+import { useGasPrice } from './useGasPrice'
 import { useTokenAllowance } from '../data/Allowances'
 import { useHasPendingApproval, useTransactionAdder } from '../state/transactions/hooks'
 import { ChainId, calculateGasMargin, isTokenWETH, isTokenWMATIC, isTokenXDAI } from '../utils'
 import { getLogger } from '../utils/logger'
-import { useActiveWeb3React } from './index'
-import { useTokenContract } from './useContract'
-import { useGasPrice } from './useGasPrice'
 
 const logger = getLogger('useApproveCallback')
 

@@ -1,6 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { PricePoint } from '../../api/AdditionalServicesApi'
 import {
   appendBid,
   pullOrderbookData,
@@ -9,6 +8,7 @@ import {
   resetUserPrice,
   resetUserVolume,
 } from './actions'
+import { PricePoint } from '../../api/AdditionalServicesApi'
 
 export interface OrderbookState {
   asks: PricePoint[]

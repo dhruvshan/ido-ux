@@ -2,9 +2,9 @@ import { useCallback, useMemo } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
+import { PopupContent, addPopup, removePopup, toggleWalletModal } from './actions'
 import { useActiveWeb3React } from '../../hooks'
 import { AppState } from '../index'
-import { PopupContent, addPopup, removePopup, toggleWalletModal } from './actions'
 
 export function useBlockNumber(): number | undefined {
   const { chainId } = useActiveWeb3React()

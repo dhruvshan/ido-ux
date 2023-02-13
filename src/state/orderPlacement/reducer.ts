@@ -1,8 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { parse } from 'qs'
 
-import { NUMBER_OF_DIGITS_FOR_INVERSION } from '../../constants/config'
-import { getInverse } from '../../utils/prices'
 import {
   invertPrice,
   priceInput,
@@ -10,6 +8,8 @@ import {
   setDefaultsFromURLSearch,
   setNoDefaultNetworkId,
 } from './actions'
+import { NUMBER_OF_DIGITS_FOR_INVERSION } from '../../constants/config'
+import { getInverse } from '../../utils/prices'
 
 export interface OrderPlacementState {
   readonly chainId: number | undefined

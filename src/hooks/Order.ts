@@ -11,7 +11,20 @@ export interface Order {
   userId: BigNumber
 }
 
+export interface RawOrder {
+  sellAmount: string
+  buyAmount: string
+  userId: string
+}
+
 export function decodeOrder(bytes: string): Order {
+  if (!bytes) {
+    return {
+      userId: BigNumber.from(0),
+      buyAmount: BigNumber.from(0),
+      sellAmount: BigNumber.from(0),
+    }
+  }
   return {
     userId: BigNumber.from('0x' + bytes.substring(2, 18)),
     buyAmount: BigNumber.from('0x' + bytes.substring(19, 42)),

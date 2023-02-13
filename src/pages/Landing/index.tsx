@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { HashLink } from 'react-router-hash-link'
 
+import AuctionsIcon from './img/eth.svg'
 import { FeaturedAuctions } from '../../components/auctions/FeaturedAuctions'
 import HighestVolumeAuctions from '../../components/auctions/HighestVolumeAuctions'
 import { ButtonCSS } from '../../components/buttons/buttonStylingTypes'
@@ -14,7 +15,6 @@ import { Partners } from '../../components/partners'
 import { useAllAuctionInfo } from '../../hooks/useAllAuctionInfos'
 import { useInterestingAuctionInfo } from '../../hooks/useInterestingAuctionDetails'
 import { useSetNoDefaultNetworkId } from '../../state/orderPlacement/hooks'
-import AuctionsIcon from './img/eth.svg'
 
 const Welcome = styled.div`
   display: flex;

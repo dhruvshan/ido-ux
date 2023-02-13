@@ -27,6 +27,7 @@ import { AuctionTimer, TIMER_SIZE } from '../AuctionTimer'
 import { ExtraDetailsItem, Props as ExtraDetailsItemProps } from '../ExtraDetailsItem'
 
 const DETAILS_HEIGHT = '120px'
+const zeroAddressRegex = /^[x0]*$/
 
 const Wrapper = styled.div`
   margin: 0 0 32px;
@@ -339,7 +340,6 @@ const AuctionDetails = (props: Props) => {
   const toggleExtraDetails = () => {
     setShowMoreDetails(!showMoreDetails)
   }
-  const zeroAddress = '0x0000000000000000000000000000000000000000'
 
   const tokenSold = useMemo(
     () =>
@@ -348,9 +348,14 @@ const AuctionDetails = (props: Props) => {
       new Fraction(
         auctionDetails.currentBiddingAmount,
         BigNumber.from('10').pow(auctionDetails.decimalsBiddingToken).toString(),
-      ).divide(derivedAuctionInfo.clearingPrice),
+      ).divide(derivedAuctionInfo?.clearingPrice || '0'),
     [auctionDetails, derivedAuctionInfo],
   )
+
+  const hasMinFundingThreshold = useMemo(() => {
+    return auctionDetails?.minFundingThreshold && auctionDetails?.minFundingThreshold !== '0'
+  }, [auctionDetails?.minFundingThreshold])
+
   const extraDetails: Array<ExtraDetailsItemProps> = React.useMemo(
     () => [
       {
@@ -367,7 +372,7 @@ const AuctionDetails = (props: Props) => {
       {
         progress:
           auctionDetails && derivedAuctionInfo
-            ? auctionDetails.minFundingThreshold === '0x0'
+            ? !hasMinFundingThreshold
               ? '-'
               : new Fraction(
                   BigNumber.from(auctionDetails.currentBiddingAmount).mul(100).toString(),
@@ -441,7 +446,7 @@ const AuctionDetails = (props: Props) => {
         tooltip: 'Address of the contract managing the allow-list for participation',
         url: getExplorerLink(chainId, auctionDetails?.allowListManager, 'address'),
         value: `${
-          auctionDetails && auctionDetails.allowListManager !== zeroAddress
+          auctionDetails && !zeroAddressRegex.test(auctionDetails.allowListManager)
             ? shortenAddress(auctionDetails.allowListManager)
             : 'None'
         }`,
@@ -451,13 +456,17 @@ const AuctionDetails = (props: Props) => {
         tooltip: 'Signer Address',
         url: getExplorerLink(chainId, auctionDetails?.allowListSigner, 'address'),
         value: `${
-          auctionDetails && auctionDetails.allowListSigner !== zeroAddress
-            ? shortenAddress(auctionDetails.allowListSigner)
+          auctionDetails && !zeroAddressRegex.test(auctionDetails.allowListSigner)
+            ? shortenAddress(
+                auctionDetails.allowListSigner.length === 66
+                  ? `0x${auctionDetails.allowListSigner.slice(2, 42)}`
+                  : auctionDetails.allowListSigner,
+              )
             : 'None'
         }`,
       },
     ],
-    [auctionDetails, chainId, derivedAuctionInfo, tokenSold],
+    [auctionDetails, chainId, derivedAuctionInfo, tokenSold, hasMinFundingThreshold],
   )
 
   const [extraDetailsHeight, setExtraDetailsHeight] = useState(0)

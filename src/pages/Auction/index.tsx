@@ -115,7 +115,10 @@ const Auction: React.FC<Props> = (props) => {
     validBiddingTokenAddress,
   ])
 
-  const isLoading = React.useMemo(() => derivedAuctionInfo === null, [derivedAuctionInfo])
+  const isLoading = React.useMemo(
+    () => derivedAuctionInfo === null || derivedAuctionInfo === undefined,
+    [derivedAuctionInfo],
+  )
   const invalidAuction = React.useMemo(
     () => !auctionIdentifier || derivedAuctionInfo === undefined,
     [auctionIdentifier, derivedAuctionInfo],

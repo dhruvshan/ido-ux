@@ -3,6 +3,12 @@ import { useEffect, useMemo } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useDispatch, useSelector } from 'react-redux'
 
+import {
+  errorFetchingMulticallResults,
+  fetchingMulticallResults,
+  parseCallKey,
+  updateMulticallResults,
+} from './actions'
 import { useActiveWeb3React } from '../../hooks'
 import { useMulticallContract } from '../../hooks/useContract'
 import useDebounce from '../../hooks/useDebounce'
@@ -10,12 +16,6 @@ import chunkArray from '../../utils/chunkArray'
 import { getLogger } from '../../utils/logger'
 import { useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
-import {
-  errorFetchingMulticallResults,
-  fetchingMulticallResults,
-  parseCallKey,
-  updateMulticallResults,
-} from './actions'
 
 const logger = getLogger('multicall/updater')
 
@@ -91,7 +91,7 @@ export default function Updater() {
   const dispatch = useDispatch<AppDispatch>()
   const state = useSelector<AppState, AppState['multicall']>((state) => state.multicall)
   // wait for listeners to settle before triggering updates
-  const debouncedListeners = useDebounce(state.callListeners, 100)
+  const debouncedListeners = useDebounce(state.callListeners, 5000)
   const latestBlockNumber = useBlockNumber()
   const { chainId } = useActiveWeb3React()
   const multicallContract = useMulticallContract()

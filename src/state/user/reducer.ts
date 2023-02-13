@@ -1,8 +1,6 @@
 import { WETH } from '@josojo/honeyswap-sdk'
 import { createReducer } from '@reduxjs/toolkit'
 
-import { GIT_COMMIT_HASH } from '../../constants/config'
-import { ChainId } from '../../utils'
 import {
   SerializedPair,
   SerializedToken,
@@ -15,6 +13,8 @@ import {
   updateUserDarkMode,
   updateVersion,
 } from './actions'
+import { GIT_COMMIT_HASH } from '../../constants/config'
+import { ChainId } from '../../utils'
 
 const currentTimestamp = () => new Date().getTime()
 

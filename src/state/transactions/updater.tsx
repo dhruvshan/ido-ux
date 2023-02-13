@@ -2,13 +2,13 @@ import { useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
+import { finalizeTransaction } from './actions'
 import { useActiveWeb3React } from '../../hooks'
 import { getLogger } from '../../utils/logger'
 import { useAddPopup, useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
 import { pullOrderbookData } from '../orderbook/actions'
 import { finalizeOrderCancellation, finalizeOrderPlacement } from '../orders/actions'
-import { finalizeTransaction } from './actions'
 
 const logger = getLogger('transactions/updater')
 

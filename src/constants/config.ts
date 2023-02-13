@@ -2,17 +2,18 @@
 export const PUBLIC_URL = process.env.PUBLIC_URL
 
 // API endpoints for several environments
-export const API_URL_DEVELOP_GOERLI = process.env.REACT_APP_ADDITIONAL_SERVICES_API_URL_GOERLI
 export const API_URL_PRODUCTION_GOERLI =
   process.env.REACT_APP_ADDITIONAL_SERVICES_API_URL_PROD_GOERLI
-export const API_URL_DEVELOP_MAINNET = process.env.REACT_APP_ADDITIONAL_SERVICES_API_URL_MAINNET
-export const API_URL_PRODUCTION_MAINNET =
-  process.env.REACT_APP_ADDITIONAL_SERVICES_API_URL_PROD_MAINNET
-export const API_URL_DEVELOP_POLYGON = process.env.REACT_APP_ADDITIONAL_SERVICES_API_URL_POLYGON
-export const API_URL_PRODUCTION_POLYGON =
-  process.env.REACT_APP_ADDITIONAL_SERVICES_API_URL_PROD_POLYGON
-export const API_URL_DEVELOP_XDAI = process.env.REACT_APP_ADDITIONAL_SERVICES_API_URL_XDAI
-export const API_URL_PRODUCTION_XDAI = process.env.REACT_APP_ADDITIONAL_SERVICES_API_URL_PROD_XDAI
+export const GRAPH_API_URL_DEVELOP_GOERLI = process.env.REACT_APP_GRAPH_API_URL_GOERLI
+export const GRAPH_API_URL_PRODUCTION_GOERLI = process.env.REACT_APP_GRAPH_API_URL_GOERLI
+// export const GRAPH_API_URL_DEVELOP_MAINNET =
+//   'https://api.thegraph.com/subgraphs/id/QmZUuKovJZbKRFADGFGWoh3LHcQSBuqCL2yTJU5gY7cL7h'
+export const GRAPH_API_URL_DEVELOP_MAINNET = process.env.REACT_APP_GRAPH_API_URL_MAINNET
+export const GRAPH_API_URL_PRODUCTION_MAINNET = process.env.REACT_APP_GRAPH_API_URL_MAINNET
+export const GRAPH_API_URL_DEVELOP_POLYGON = process.env.REACT_APP_GRAPH_API_URL_POLYGON
+export const GRAPH_API_URL_PRODUCTION_POLYGON = process.env.REACT_APP_GRAPH_API_URL_POLYGON
+export const GRAPH_API_URL_DEVELOP_XDAI = process.env.REACT_APP_GRAPH_API_URL_XDAI
+export const GRAPH_API_URL_PRODUCTION_XDAI = process.env.REACT_APP_GRAPH_API_URL_XDAI
 
 // Infura bridges like 'https://mainnet.infura.io/v3/...'
 export const NETWORK_URL_GOERLI = process.env.REACT_APP_NETWORK_URL_GOERLI || ''
@@ -30,8 +31,15 @@ export const PORTIS_ID = process.env.REACT_APP_PORTIS_ID || ''
 export const GOOGLE_ANALYTICS_ID = process.env.REACT_APP_GOOGLE_ANALYTICS_ID || ''
 export const GIT_COMMIT_HASH = process.env.REACT_APP_GIT_COMMIT_HASH || ''
 
+// Pinata keys
+export const PINATA_API_KEY = process.env.REACT_APP_PINATA_KEY || ''
+export const PINATA_SECRET_API_KEY = process.env.REACT_APP_PINATA_SECRET || ''
+
 export const MAX_DECIMALS_PRICE_FORMAT = 12
 export const NUMBER_OF_DIGITS_FOR_INVERSION = 6
+
+export const PINATA_BASE_URL = 'https://api.pinata.cloud/'
+export const PINATA_QUERY_URL = 'https://gateway.pinata.cloud/ipfs/'
 
 export const STABLE_TOKENS_FOR_INVERTED_CHARTS = [
   '0x6B175474E89094C44Da98b954EedeAC495271d0F',
