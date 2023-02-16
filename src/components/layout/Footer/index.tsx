@@ -1,12 +1,16 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 
+import { brands, icon, regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { HashLink } from 'react-router-hash-link'
 
+import { Logo } from '../../common/Logo'
 import { InnerContainer } from '../../pureStyledComponents/InnerContainer'
 
 const Wrapper = styled.footer`
   display: flex;
+  background-color: black;
   height: auto;
   justify-content: center;
   margin-top: auto;
@@ -28,29 +32,39 @@ const Inner = styled(InnerContainer)`
   row-gap: 10px;
 
   @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
-    align-items: center;
+    // align-items: center;
     column-gap: unset;
     display: flex;
     flex-direction: row;
     flex-grow: 1;
     flex-shrink: 0;
     grid-template-columns: unset;
-    justify-content: center;
+    justify-content: space-between;
+    // justify-content: center;
     row-gap: unset;
   }
 `
 
+const LogoLink = styled(HashLink)`
+  display: none;
+
+  @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
+    display: block;
+  }
+`
+
 const Item = styled.span`
-  color: ${({ theme }) => theme.text1};
+  // color: ${({ theme }) => theme.text1};
+  color: white;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.2;
   margin: 0;
   opacity: 0.8;
 
-  &:hover {
-    opacity: 1;
-  }
+  // &:hover {
+  //   opacity: 1;
+  // }
 
   @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
     margin-right: 30px;
@@ -62,16 +76,35 @@ const Item = styled.span`
 `
 
 const LinkCSS = css`
-  color: ${({ theme }) => theme.text1};
+  color: grey;
   text-decoration: none;
   transition: color 0.05s linear;
 
   &:hover {
-    color: ${({ theme }) => theme.primary2};
+    color: ${({ theme }) => theme.primary1};
   }
+`
+const List = styled.li`
+  padding: 5px 0 5px;
+  font-size: 15px;
+  list-style: none;
+  color: grey;
+  margin-left: 0;
+`
+
+const HorizontalList = styled.li`
+  padding: 5px 0 5px;
+  float: left;
+  margin-right: 10px;
+`
+
+const HeadText = styled.p`
+  margin-bottom: 10px;
 `
 
 const ExternalLink = styled.a`
+  display: block;
+  color: grey;
   ${LinkCSS}
 `
 
@@ -87,7 +120,9 @@ export const Footer: React.FC = (props) => {
   return (
     <Wrapper {...restProps}>
       <Inner>
-        <Item>
+        <LogoLink className="logoLink" to="/#topAnchor">
+          <Logo />
+          <br></br>
           <ExternalLink
             href="https://forum.gnosis.io/c/dao/20"
             rel="noopener noreferrer"
@@ -95,23 +130,121 @@ export const Footer: React.FC = (props) => {
           >
             {`©${year} GnosisDAO Forum`}
           </ExternalLink>
+        </LogoLink>
+        <Item>
+          <HeadText>ORGANIZATION</HeadText>
+          <List>
+            <ExternalLink
+              href="https://www.gnosis.builders/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Gnosis Builders
+            </ExternalLink>
+          </List>
+          <List>
+            <ExternalLink
+              href="https://gnosis.jobs.personio.com/#department-3385906"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Careers
+            </ExternalLink>
+          </List>
+          <List>
+            <ExternalLink
+              href="https://www.gnosischain.com/evm"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Gnosis Chain
+            </ExternalLink>
+          </List>
         </Item>
         <Item>
-          <Link to="/terms-and-conditions#topAnchor">Terms</Link>
+          <HeadText>TOOLS</HeadText>
+          <List>
+            <ExternalLink
+              href="https://gnosisfaucet.com/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              xDAI Faucet
+            </ExternalLink>
+          </List>
+          <List>
+            <ExternalLink href="https://buyxdai.com" rel="noopener noreferrer" target="_blank">
+              Buy xDAI
+            </ExternalLink>
+          </List>
+          <List>
+            <ExternalLink href="https://buyxdai.com/gno" rel="noopener noreferrer" target="_blank">
+              Buy GNO
+            </ExternalLink>
+          </List>
+          <List>
+            <ExternalLink href="https://walletfinder.com" rel="noopener noreferrer" target="_blank">
+              Wallet Finder
+            </ExternalLink>
+          </List>
+          <List>
+            <ExternalLink
+              href="https://www.gnosismetrics.com"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Gnosis Metrics
+            </ExternalLink>
+          </List>
+          <List>
+            <ExternalLink href="" rel="noopener noreferrer" target="_blank">
+              Validate Gnosis
+            </ExternalLink>
+          </List>
         </Item>
         <Item>
-          <Link to="/licenses#topAnchor">Licenses</Link>
+          <HeadText>BLOG</HeadText>
+          <List>
+            <ExternalLink
+              href="https://www.gnosis.builders/gnosis-builders-blog"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Builders Blog
+            </ExternalLink>
+          </List>
         </Item>
         <Item>
-          <ExternalLink
-            href="https://dune.xyz/josojo/Gnosis-Auction"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Analytics
-          </ExternalLink>
+          <HeadText>SOCIALS</HeadText>
+          <HorizontalList>
+            <ExternalLink
+              href="https://twitter.com/gnosisbuilders"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <FontAwesomeIcon icon={brands('twitter')} size="2x" />
+            </ExternalLink>
+          </HorizontalList>
+          <HorizontalList>
+            <ExternalLink
+              href="https://discord.gg/gnosischain"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <FontAwesomeIcon icon={brands('discord')} size="2x" />
+            </ExternalLink>
+          </HorizontalList>
+          <HorizontalList>
+            <ExternalLink
+              href="https://t.me/GnosisBuildersCommunity"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <FontAwesomeIcon icon={brands('telegram')} size="2x" />
+            </ExternalLink>
+          </HorizontalList>
         </Item>
-        <Item>
+        {/* <Item>
           <ExternalLink
             href="https://discord.com/invite/M39dTHQ"
             rel="noopener noreferrer"
@@ -119,7 +252,7 @@ export const Footer: React.FC = (props) => {
           >
             Support
           </ExternalLink>
-        </Item>
+        </Item> */}
       </Inner>
     </Wrapper>
   )
