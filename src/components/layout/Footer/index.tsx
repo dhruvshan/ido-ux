@@ -47,7 +47,7 @@ const Inner = styled(InnerContainer)`
 
 const LogoLink = styled(HashLink)`
   display: none;
-
+  text-decoration: none;
   @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
     display: block;
   }
@@ -104,6 +104,7 @@ const HeadText = styled.p`
 
 const ExternalLink = styled.a`
   display: block;
+  text-decoration: none;
   color: grey;
   ${LinkCSS}
 `

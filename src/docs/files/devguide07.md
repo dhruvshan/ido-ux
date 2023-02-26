@@ -8,6 +8,11 @@ The auction will always end at the predefined time set by the auctioneer. Each a
 
 The final clearing price will be the price where the supply and demand curve intersect. (In the graph, it's where the red supply line meets the green demand curve, indicated by the white dashed line).
 
+Bidders are ordered in this format:
+1. Price
+2. Bid amount (amount of tokens the bidder is willing to buy)
+3. User ID (auto generated index created when a user connects their wallet)
+
 <img src="/assets/BosonScreenShot.png" alt="drawing" width="500"/>
 
 #### I was bidding X tokens, how many can I claim?
