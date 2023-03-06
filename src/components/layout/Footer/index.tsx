@@ -1,7 +1,7 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-import { brands, icon, regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro'
+import { brands } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { HashLink } from 'react-router-hash-link'
 
@@ -109,9 +109,9 @@ const ExternalLink = styled.a`
   ${LinkCSS}
 `
 
-const Link = styled(HashLink)`
-  ${LinkCSS}
-`
+// const Link = styled(HashLink)`
+//   ${LinkCSS}
+// `
 
 export const Footer: React.FC = (props) => {
   const { ...restProps } = props
