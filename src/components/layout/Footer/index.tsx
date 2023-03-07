@@ -1,8 +1,8 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 
-import { brands } from '@fortawesome/fontawesome-svg-core/import.macro'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { brands } from '@fortawesome/fontawesome-svg-core/import.macro'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { HashLink } from 'react-router-hash-link'
 
 import { Logo } from '../../common/Logo'
@@ -223,7 +223,8 @@ export const Footer: React.FC = (props) => {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <FontAwesomeIcon icon={brands('twitter')} size="2x" />
+              {/* <FontAwesomeIcon icon={brands('twitter')} size="2x" /> */}
+              Twitter
             </ExternalLink>
           </HorizontalList>
           <HorizontalList>
@@ -232,7 +233,8 @@ export const Footer: React.FC = (props) => {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <FontAwesomeIcon icon={brands('discord')} size="2x" />
+              {/* <FontAwesomeIcon icon={brands('discord')} size="2x" /> */}
+              Discord
             </ExternalLink>
           </HorizontalList>
           <HorizontalList>
@@ -241,7 +243,8 @@ export const Footer: React.FC = (props) => {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <FontAwesomeIcon icon={brands('telegram')} size="2x" />
+              {/* <FontAwesomeIcon icon={brands('telegram')} size="2x" /> */}
+              Telegram
             </ExternalLink>
           </HorizontalList>
         </Item>
