@@ -19,7 +19,8 @@ const SubTitle = styled.h2`
   font-size: 40px;
   font-weight: 700;
   line-height: 1.2;
-  margin: 0 0 30px;
+  margin: 0;
+  padding: 20px 0 20px;
   text-align: left;
 
   @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
@@ -36,27 +37,29 @@ const BlockGrid = styled.div`
 
   @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
     grid-template-columns: 1fr 1fr;
-    margin-bottom: 100px;
+    // margin-bottom: 100px;
     padding: 0 0px;
   }
 `
 
-// const innerBlock = styled.div`
-//   display: grid;
-//   grid-template-columns: 1fr;
-//   margin-top: 10px;
-//   margin-bottom: 10px;
+const InnerBlock = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: 10px;
+  margin-bottom: 10px;
 
-//   @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
-//     grid-template-columns: 1fr 1fr;
-//     margin-bottom: 100px;
-//     padding: 0 0px;
-//   }
-// `
+  @media (min-width: ${({ theme }) => theme.themeBreakPoints.md}) {
+    grid-template-columns: 0.6fr 1.4fr;
+    margin-bottom: 100px;
+    align-items: center;
+    padding: 0px;
+  }
+`
 
 const ImageBlock = styled.div<{ align: string }>`
   display: flex;
   justify-content: center;
+  text-align: center;
   margin-bottom: 10px;
   order: 0;
 
@@ -78,18 +81,18 @@ export const Partners: React.FC = (props) => {
         Our Partners
       </PageTitle>
       <BlockGrid>
-        <BlockGrid>
+        <InnerBlock>
           <ImageBlock align="left">
             <img src={LitProtocolIcon} style={ImageStyle} />
           </ImageBlock>
           <SubTitle>Lit Protocol</SubTitle>
-        </BlockGrid>
-        <BlockGrid>
+        </InnerBlock>
+        <InnerBlock>
           <ImageBlock align="left">
             <img src={GraphIcon} style={{ width: '106px', height: '117px' }} />
           </ImageBlock>
           <SubTitle>The Graph Protocol</SubTitle>
-        </BlockGrid>
+        </InnerBlock>
       </BlockGrid>
     </Wrapper>
   )

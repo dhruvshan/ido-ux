@@ -22,7 +22,7 @@
 
 (b) The second parameter you need to enter is the token address you will accept for bidding. This is the token that the auction participants (bidders) will use to place their bids.
 
-(c) The third parameter you need to enter is the amount of tokens (expressed in numbers) you are about to auction. Keep in mind that the value of this parameter has to be within the amount of tokens that you hold in the Gnosis Safe.
+(c) The third parameter you need to enter is the amount of tokens (expressed in numbers) you are about to auction. Keep in mind that the value of this parameter has to be within the amount of tokens that you hold in the Gnosis Safe. 
 
 As you can see in the image below, if you try to input a value of more tokens than are held in the Gnosis Safe, the app will show a “Not enough Balance” error.
 

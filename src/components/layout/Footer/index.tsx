@@ -13,9 +13,9 @@ const Wrapper = styled.footer`
   background-color: black;
   height: auto;
   justify-content: center;
-  margin-top: auto;
+  margin-top: 100px;
   overflow: visible;
-  padding: 65px 0 25px 0;
+  padding: 65px 0 65px 0;
   width: 100%;
 `
 
@@ -145,7 +145,7 @@ export const Footer: React.FC = (props) => {
           </List>
           <List>
             <ExternalLink
-              href="https://gnosis.jobs.personio.com/#department-3385906"
+              href="https://www.gnosis.builders/careers"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -184,6 +184,20 @@ export const Footer: React.FC = (props) => {
             </ExternalLink>
           </List>
           <List>
+            <ExternalLink
+              href="https://mgno.validategnosis.com"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              mGNO Validator Deposit
+            </ExternalLink>
+          </List>
+          <List>
+            <ExternalLink href="https://d14n.info/" rel="noopener noreferrer" target="_blank">
+              d14n
+            </ExternalLink>
+          </List>
+          <List>
             <ExternalLink href="https://walletfinder.com" rel="noopener noreferrer" target="_blank">
               Wallet Finder
             </ExternalLink>
@@ -198,7 +212,11 @@ export const Footer: React.FC = (props) => {
             </ExternalLink>
           </List>
           <List>
-            <ExternalLink href="" rel="noopener noreferrer" target="_blank">
+            <ExternalLink
+              href="https://www.validategnosis.com"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               Validate Gnosis
             </ExternalLink>
           </List>
@@ -225,16 +243,6 @@ export const Footer: React.FC = (props) => {
             >
               {/* <FontAwesomeIcon icon={brands('twitter')} size="2x" /> */}
               Twitter
-            </ExternalLink>
-          </HorizontalList>
-          <HorizontalList>
-            <ExternalLink
-              href="https://discord.gg/gnosischain"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {/* <FontAwesomeIcon icon={brands('discord')} size="2x" /> */}
-              Discord
             </ExternalLink>
           </HorizontalList>
           <HorizontalList>
