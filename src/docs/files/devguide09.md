@@ -31,10 +31,13 @@ With **Credentials API**, your dApp sends a signed proof it has received from Fr
 Alternatively, either Fireblocks or Fractal can provide you a list of addresses that have successfully completed the KYC process and you can implement it yourself by following the allow-listing steps below.
 
 1. Upon auction initiation, the auctioneer must specify the designated EOA in the [Gnosis Auction Starter safe app](/#/docs/starting-an-auction-with-safe). You can do this in the following field:
-   <img src="/assets/SignerAddress.png" alt="drawing" width="500"/>
+
+<img src="/assets/SignerAddress.png" alt="drawing" width="800"/>
 
 Once the auction was successfully initiated, all participants will see only the following screen in the interface:
-<img src="/assets/PrivateAuction.png" alt="drawing" width="250"/>
+
+
+<img src="/assets/PrivateAuction.png" alt="drawing" width="400"/>
 
 2. The signed messages for the users can be created by running this [generateSignatures](https://github.com/gnosis/ido-contracts#allow-listing-generating-signatures) hardhat-script by referencing the list of allow-listed addresses. It should be run with the additional argument `post-to-api`, such that the signatures are uploaded to the GnosisDAO backend. From there, Gnosis Auction will serve the signatures automatically to users once they connect to the UI.
 3. Visit your auction on [gnosis-auction.eth.link](https://gnosis-auction.eth.link) and connect to the site with one allow-listed address. Now, this account should no longer see the **Private Auction** warning but will be able to place an order.

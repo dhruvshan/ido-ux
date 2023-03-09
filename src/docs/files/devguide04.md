@@ -1,6 +1,6 @@
-### Gnosis Auction user flow
+### Typical user flow
 
-In Gnosis Auction, there are two types of participants: a seller and a bidder(s).
+In Gnosis Auction, there are two types of participants: a **seller** and a **bidder**.
 
 #### 1. Seller: Starting an auction
 
@@ -13,16 +13,16 @@ There are two options to start an auction on most networks:
 
 Once the auctions starts, the bidders get to start placing bids. They need to:
 
-- Approve the token (if first time)
+- Approve the token (if bidding for the first time)
 - Select the amount of bid tokens they are willing to commit to the auction
-- Select the maximum price willing to pay
+- Select the maximum price they are willing to pay
 - Initiate the order
 
-After submitting the transaction, the bidder’s bid will be validated, and the amount of bid tokens that they selected would be subtracted from their balance.
+After submitting the transaction, the bidder’s bid will be validated, and the amount of bidding tokens that they selected would be subtracted from their balance.
 
 Check out this [detailed guide](/#/docs/participate-as-a-bidder) for more info.
 
-_Note: It is important to note that many participants might submit new bids right before the auction closes, making it difficult to predict the clearing price of the auction ahead of time. Thus, it is important for bidders to submit their bids with the highest price they are comfortable to pay for the asset_
+_Note: It is important to note that many participants might submit new bids right before the auction closes, making it difficult to predict the clearing price of the auction ahead of time. Thus, it is important for bidders to submit their bids with the highest price they are comfortable in paying for the asset_
 
 #### 3. Seller: On-chain price calculation
 

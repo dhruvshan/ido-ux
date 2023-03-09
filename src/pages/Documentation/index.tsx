@@ -146,7 +146,7 @@ const Content = styled.div`
 
 const IndexLink = styled(NavHashLink)`
   color: ${({ theme }) => theme.text1};
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   margin-bottom: 8px;
   text-decoration: none;
@@ -201,25 +201,25 @@ export const Documentation: React.FC = (props) => {
             How do Batch Auctions work?
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/use-cases#topAnchor">
-            Use Cases
+            Use cases
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/user-flow#topAnchor">
             User flow
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/participate-as-a-bidder#topAnchor">
-            Participate as a bidder
+            Participating as a Bidder
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/participate-as-auctioneer#topAnchor">
-            Start an auction via scripts
+            Start an Auction via scripts
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/starting-an-auction-with-safe#topAnchor">
-            Start an auction via UI
+            Start an auction via Gnosis Safe
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/settle-an-auction#topAnchor">
-            Settle an auction
+            Settle an Auction
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/private-auctions-and-KYC-solutions">
-            Private auctions/KYC solutions
+            Private Auctions/KYC solutions
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/vested-tokens">
             Vested tokens

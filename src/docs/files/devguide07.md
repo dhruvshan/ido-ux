@@ -13,7 +13,7 @@ Bidders are ordered in this format:
 2. Bid amount (amount of tokens the bidder is willing to buy)
 3. User ID (auto generated index created when a user connects their wallet)
 
-<img src="/assets/BosonScreenShot.png" alt="drawing" width="500"/>
+<img src="/assets/BosonScreenShot.png" alt="drawing" width="800"/>
 
 #### I was bidding X tokens, how many can I claim?
 If the final clearing price was higher than your limit order price, you will receive back your funds using for bidding. Otherwise, you will receive the `bidding amount * clearing price` auctioned tokens.
