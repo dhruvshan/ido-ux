@@ -198,7 +198,11 @@ export const Footer: React.FC = (props) => {
             </ExternalLink>
           </List>
           <List>
-            <ExternalLink href="https://walletfinder.com" rel="noopener noreferrer" target="_blank">
+            <ExternalLink
+              href="https://gnosiswallets.com"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               Wallet Finder
             </ExternalLink>
           </List>

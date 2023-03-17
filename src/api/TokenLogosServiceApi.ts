@@ -10,6 +10,7 @@ const TOKEN_LIST_RESOURCES = [
   'https://raw.githubusercontent.com/ribbon-finance/ribbon-token-list/82c7808f7b0322b2ba8807d7dc88c2db7fb9971a/ribbon.tokenlist.json',
   'https://tokens.coingecko.com/uniswap/all.json',
   'https://tokens.1inch.eth.link',
+  //bottom url is linking to tokens.1inch.exchange which doesnt work
   'https://bafybeih3zii2hukln4enn2qiacqeb4jgvqescxpbudxhpvtfiex4cjpgce.ipfs.dweb.link/',
   'https://raw.githubusercontent.com/Gnosis-Builders/ido-contracts/master/assets/tokens/goerli-token-list.json',
   'https://tokens.honeyswap.org',
