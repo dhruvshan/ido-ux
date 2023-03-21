@@ -32,7 +32,7 @@ import { Order, encodeOrder } from '../hooks/Order'
 import { AuctionInfo } from '../hooks/useAllAuctionInfos'
 import { AuctionInfoDetail } from '../hooks/useAuctionDetails'
 import { queueStartElement } from '../hooks/usePlaceOrderCallback'
-import lit, { getChainName } from '../utils/lit'
+import { EncryptedString } from '../utils/lit'
 import { getLogger } from '../utils/logger'
 
 const logger = getLogger('AdditionalServicesApi')
@@ -57,7 +57,7 @@ export interface AdditionalServicesApi {
   getClearingPriceOrderAndVolume(params: OrderBookParams): Promise<ClearingPriceAndVolumeData>
   getAuctionDetailQuery(): DocumentNode
   getAuctionDetails(params: AuctionDetailParams): Promise<AuctionInfoDetail>
-  getSignature(params: GetSignatureParams): Promise<string>
+  getSignature(params: GetSignatureParams): Promise<EncryptedString | string>
   getSignatureUrl(params: GetSignatureParams): string
   getUserIdQuery(): DocumentNode
   getUserId(params: GetUserIdParams): Promise<string>
@@ -599,7 +599,7 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
     return `${baseUrl}data/pinList?status=pinned&metadata[name]=${networkId}-${auctionId}-${address}`
   }
 
-  public async getSignature(params: GetSignatureParams): Promise<string> {
+  public async getSignature(params: GetSignatureParams): Promise<EncryptedString | string> {
     try {
       const url = await this.getSignatureUrl(params)
 
@@ -619,8 +619,6 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
         return '0x'
       }
       const cidData = response.rows[0].ipfs_pin_hash
-      const metadata = response.rows[0].metadata
-      const address = metadata.keyvalues.address
       if (!cidData) {
         return '0x'
       }
@@ -629,27 +627,7 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
       if (!signatureRes.ok) {
         throw await res.json()
       }
-      const { encryptedString, encryptedSymmetricKey } = await signatureRes.json()
-      const accessControlConditions = [
-        {
-          conditionType: 'evmBasic',
-          contractAddress: '',
-          standardContractType: '',
-          chain: getChainName(params.networkId),
-          method: '',
-          parameters: [':userAddress'],
-          returnValueTest: {
-            comparator: '=',
-            value: address,
-          },
-        },
-      ]
-      const decryptSignature = await lit.decryptString(
-        { encryptedString, encryptedSymmetricKey },
-        accessControlConditions,
-        getChainName(params.networkId),
-      )
-      return decryptSignature
+      return signatureRes.json()
     } catch (error) {
       logger.error(error)
       return null

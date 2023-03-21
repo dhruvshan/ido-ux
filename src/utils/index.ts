@@ -6,6 +6,7 @@ import { JsonRpcSigner, Provider, Web3Provider } from '@ethersproject/providers'
 import { parseBytes32String } from '@ethersproject/strings'
 import { JSBI, Percent, Token, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
 import { abi as IUniswapV2PairABI } from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import { SiweMessage } from 'siwe'
 
 import easyAuctionABI from '../constants/abis/easyAuction/easyAuction.json'
 import ERC20_ABI from '../constants/abis/erc20.json'
@@ -262,4 +263,38 @@ export function isTokenWMATIC(tokenAddress?: string, chainId?: ChainId): boolean
 
 export function isTimeout(timeId: NodeJS.Timeout | undefined): timeId is NodeJS.Timeout {
   return typeof timeId !== 'undefined'
+}
+
+export interface AuthSig {
+  sig: string
+  derivedVia: string
+  signedMessage: string
+  address: string
+}
+
+export async function generateAuthSig(
+  signer: JsonRpcSigner,
+  chainId: number,
+  auctionId: number,
+): Promise<AuthSig> {
+  const address = await signer.getAddress()
+  const siweMessage = new SiweMessage({
+    domain: 'gnosisauction',
+    address: address,
+    statement: `Sign in to access bidding for auction - ${auctionId}`,
+    uri: origin,
+    version: '1',
+    chainId: chainId,
+  })
+
+  const messageToSign = siweMessage.prepareMessage()
+  const signature = await signer.signMessage(messageToSign)
+
+  const authSig = {
+    sig: signature,
+    derivedVia: 'web3.eth.personal.sign',
+    signedMessage: messageToSign,
+    address: address,
+  }
+  return authSig
 }

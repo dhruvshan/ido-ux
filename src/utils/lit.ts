@@ -1,12 +1,12 @@
 import * as LitJsSdk from '@lit-protocol/lit-node-client'
 
-import { ChainId } from '.'
+import { AuthSig, ChainId } from '.'
 
 const client = new LitJsSdk.LitNodeClient({ debug: true })
 
-type EncryptedContent = {
-  encryptedString: any
-  encryptedSymmetricKey: any
+export type EncryptedString = {
+  encryptedString: string
+  encryptedSymmetricKey: string
 }
 
 class Lit {
@@ -18,15 +18,15 @@ class Lit {
   }
 
   async decryptString(
-    { encryptedString, encryptedSymmetricKey }: EncryptedContent,
+    { encryptedString, encryptedSymmetricKey }: EncryptedString,
     accessControlConditions: any,
     chain: string,
+    authSig: AuthSig,
   ) {
     if (!this.litNodeClient) {
       await this.connect()
     }
 
-    const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
     // eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
     const symmetricKey = await this.litNodeClient!.getEncryptionKey({
       accessControlConditions,
