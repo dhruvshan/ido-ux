@@ -352,9 +352,13 @@ const AuctionDetails = (props: Props) => {
     [auctionDetails, derivedAuctionInfo],
   )
 
-  const hasMinFundingThreshold = useMemo(() => {
-    return auctionDetails?.minFundingThreshold && auctionDetails?.minFundingThreshold !== '0x0'
-  }, [auctionDetails?.minFundingThreshold])
+  const allowListSigner = useMemo(
+    () =>
+      auctionDetails?.allowListSigner?.length === 66
+        ? `0x${auctionDetails?.allowListSigner.slice(26)}`
+        : auctionDetails?.allowListSigner,
+    [auctionDetails?.allowListSigner],
+  )
 
   const extraDetails: Array<ExtraDetailsItemProps> = React.useMemo(
     () => [
@@ -372,7 +376,7 @@ const AuctionDetails = (props: Props) => {
       {
         progress:
           auctionDetails && derivedAuctionInfo
-            ? !hasMinFundingThreshold
+            ? auctionDetails.minFundingThreshold === '0x0'
               ? '-'
               : new Fraction(
                   BigNumber.from(auctionDetails.currentBiddingAmount).mul(100).toString(),
@@ -454,19 +458,15 @@ const AuctionDetails = (props: Props) => {
       {
         title: 'Signer Address',
         tooltip: 'Signer Address',
-        url: getExplorerLink(chainId, auctionDetails?.allowListSigner, 'address'),
+        url: getExplorerLink(chainId, allowListSigner, 'address'),
         value: `${
-          auctionDetails && !zeroAddressRegex.test(auctionDetails.allowListSigner)
-            ? shortenAddress(
-                auctionDetails.allowListSigner.length === 66
-                  ? `0x${auctionDetails.allowListSigner.slice(2, 42)}`
-                  : auctionDetails.allowListSigner,
-              )
+          auctionDetails && !zeroAddressRegex.test(auctionDetails?.allowListSigner)
+            ? shortenAddress(allowListSigner)
             : 'None'
         }`,
       },
     ],
-    [auctionDetails, chainId, derivedAuctionInfo, tokenSold, hasMinFundingThreshold],
+    [auctionDetails, chainId, derivedAuctionInfo, tokenSold, allowListSigner],
   )
 
   const [extraDetailsHeight, setExtraDetailsHeight] = useState(0)
