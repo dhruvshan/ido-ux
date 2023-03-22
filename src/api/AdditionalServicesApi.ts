@@ -574,10 +574,15 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
         price: parseFloat(exactOrder.price),
         volume: parseFloat(exactOrder.volume),
       }
-      const bids = ((await res.data.bids?.orders) || []).map((bid) => ({
-        price: parseFloat(bid.price),
-        volume: parseFloat(bid.volume),
-      }))
+      const bids = ((await res.data.bids?.orders) || [])
+        .map((bid) => ({
+          price: parseFloat(bid.price),
+          volume: parseFloat(bid.volume),
+        }))
+        .sort((a, b) => {
+          if (a.price === b.price) return b.volume - a.volume
+          return b.price - a.price
+        })
       return {
         asks: [asks],
         bids: bids,
