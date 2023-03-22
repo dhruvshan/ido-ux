@@ -353,7 +353,7 @@ const AuctionDetails = (props: Props) => {
   )
 
   const hasMinFundingThreshold = useMemo(() => {
-    return auctionDetails?.minFundingThreshold && auctionDetails?.minFundingThreshold !== '0'
+    return auctionDetails?.minFundingThreshold && auctionDetails?.minFundingThreshold !== '0x0'
   }, [auctionDetails?.minFundingThreshold])
 
   const extraDetails: Array<ExtraDetailsItemProps> = React.useMemo(
