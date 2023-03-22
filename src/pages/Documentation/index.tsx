@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import ReactMarkdown from 'react-markdown'
 import { NavHashLink } from 'react-router-hash-link'
 
+import DropDownDocsMenu from './DropDownDocsMenu'
 import { PageTitle } from '../../components/pureStyledComponents/PageTitle'
 import overviewDocMarkdown from '../../docs/files/devguide01.md'
 import batchAuctionDocMarkdown from '../../docs/files/devguide02.md'
@@ -47,6 +48,10 @@ const Sidebar = styled.div`
   padding-top: 24px;
   position: sticky;
   top: 0;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `
 
 const Content = styled.div`
@@ -155,6 +160,14 @@ const IndexLink = styled(NavHashLink)`
     color: ${({ theme }) => theme.primary1};
   }
 `
+const ResponsiveDiv = styled.div`
+  margin-top: 25px;
+  text-align: center;
+  display: none;
+  @media (max-width: 768px) {
+    display: inline;
+  }
+`
 
 export const Documentation: React.FC = (props) => {
   const { ...restProps } = props
@@ -231,6 +244,9 @@ export const Documentation: React.FC = (props) => {
             FAQ
           </IndexLink>
         </Sidebar>
+        <ResponsiveDiv>
+          <DropDownDocsMenu></DropDownDocsMenu>
+        </ResponsiveDiv>
         <Content>
           <ReactMarkdown escapeHtml={false} source={content} />
         </Content>
