@@ -94,6 +94,7 @@ export function usePlaceOrderCallback(
         previousOrder = await additionalServiceApi.getPreviousOrder({
           networkId: chainId,
           auctionId,
+          price,
           order: {
             buyAmount: buyAmountScaled,
             sellAmount: sellAmountScaled,

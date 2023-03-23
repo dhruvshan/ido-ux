@@ -83,6 +83,7 @@ interface PreviousOrderParams {
   networkId: number
   auctionId: number
   order: Order
+  price: string
 }
 
 interface UserOrderParams {
@@ -372,6 +373,7 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
         query,
         variables: {
           id: params.auctionId,
+          price: params.price,
         },
       })
 
@@ -384,6 +386,12 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
       if (!order) {
         return queueStartElement
       }
+      // Sort the orders by their price and volume
+      const sortedOrders = res.data.auctionDetail.orders.sort((a, b) => {
+        if (a.price === b.price) return b.volume - a.volume
+        return b.price - a.price
+      })
+      order = sortedOrders[0]
       order = {
         userId: BigNumber.from(order.userId),
         buyAmount: BigNumber.from(order.buyAmount),
