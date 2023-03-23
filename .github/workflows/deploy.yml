@@ -48,7 +48,7 @@ jobs:
         run: yarn build
         env:
           REACT_APP_NETWORK_URL_GOERLI: https://goerli.infura.io/v3/${{ secrets.INFURA_PROJECT_KEY_DEV }}
-          REACT_APP_GRAPH_API_URL_GOERLI: https://api.thegraph.com/subgraphs/name/aireshbhat/gnosisauctiongoerli
+          REACT_APP_GRAPH_API_URL_GOERLI: https://api.thegraph.com/subgraphs/name/gnosis-auction/ga-goerli
           REACT_APP_NETWORK_URL_XDAI: https://rpc.xdaichain.com/
           REACT_APP_GRAPH_API_URL_XDAI: https://api.thegraph.com/subgraphs/name/aireshbhat/gnosisauction
           REACT_APP_NETWORK_URL_MAINNET: https://mainnet.infura.io/v3/${{ secrets.INFURA_PROJECT_KEY_DEV }}
