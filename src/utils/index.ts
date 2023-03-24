@@ -14,6 +14,7 @@ import ERC20_BYTES32_ABI from '../constants/abis/erc20_bytes32.json'
 import {
   NETWORK_URL_GOERLI,
   NETWORK_URL_MAINNET,
+  NETWORK_URL_MUMBAI,
   NETWORK_URL_POLYGON,
   NETWORK_URL_XDAI,
 } from '../constants/config'
@@ -35,6 +36,7 @@ export enum ChainId {
   GÖRLI = 5,
   XDAI = 100,
   MATIC = 137,
+  MUMBAI = 80001,
 }
 
 export const EASY_AUCTION_NETWORKS: { [chainId in ChainId]: string } = {
@@ -42,6 +44,7 @@ export const EASY_AUCTION_NETWORKS: { [chainId in ChainId]: string } = {
   [ChainId.GÖRLI]: '0x1fBAb40C338E2e7243DA945820Ba680C92EF8281',
   [ChainId.XDAI]: '0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101',
   [ChainId.MATIC]: '0x0b7fFc1f4AD541A4Ed16b40D8c37f0929158D101',
+  [ChainId.MUMBAI]: '0x4100aF1E6e8bBc174fc5da4D409e1e3C03F1f85E',
 }
 
 export const DEPOSIT_AND_PLACE_ORDER: { [chainId in ChainId]: string } = {
@@ -49,6 +52,7 @@ export const DEPOSIT_AND_PLACE_ORDER: { [chainId in ChainId]: string } = {
   [ChainId.GÖRLI]: '0xc6e51F2cb369F03672197D0C31Dd5F0d9566217B',
   [ChainId.XDAI]: '0x845AbED0734e39614FEC4245F3F3C88E2da98157',
   [ChainId.MATIC]: '0x93D2BbA07b44e8F2b02F7DA164eE4f7442a3B618',
+  [ChainId.MUMBAI]: '0x7f49Ee20f2E83Ca53B08944938E9B6Fad8e3E3B6',
 }
 
 type NetworkConfig = {
@@ -83,6 +87,12 @@ export const NETWORK_CONFIGS: { [chainId in ChainId]: NetworkConfig } = {
     symbol: 'MATIC',
     rpc: NETWORK_URL_POLYGON,
     explorer: 'https://polygonscan.com',
+  },
+  80001: {
+    name: 'Mumbai Testnet',
+    symbol: 'MATIC',
+    rpc: NETWORK_URL_MUMBAI,
+    explorer: 'https://mumbai.polygonscan.com',
   },
 }
 

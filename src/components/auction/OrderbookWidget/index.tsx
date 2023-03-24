@@ -158,7 +158,7 @@ const processData = (
         priceNumber: price,
         totalVolumeNumber: totalVolume,
         priceFormatted: price.toFixed(MAX_DECIMALS_PRICE_FORMAT),
-        totalVolumeFormatted: parseFloat(`${totalVolume}`).toFixed(MAX_DECIMALS_PRICE_FORMAT),
+        totalVolumeFormatted: totalVolume.toFixed(MAX_DECIMALS_PRICE_FORMAT),
         askValueY,
         bidValueY,
         newOrderValueY: null,

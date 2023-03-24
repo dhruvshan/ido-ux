@@ -7,10 +7,12 @@ import { TokenLogosServiceApi, TokenLogosServiceApiInterface } from './TokenLogo
 import {
   GRAPH_API_URL_DEVELOP_GOERLI,
   GRAPH_API_URL_DEVELOP_MAINNET,
+  GRAPH_API_URL_DEVELOP_MUMBAI,
   GRAPH_API_URL_DEVELOP_POLYGON,
   GRAPH_API_URL_DEVELOP_XDAI,
   GRAPH_API_URL_PRODUCTION_GOERLI,
   GRAPH_API_URL_PRODUCTION_MAINNET,
+  GRAPH_API_URL_PRODUCTION_MUMBAI,
   GRAPH_API_URL_PRODUCTION_POLYGON,
   GRAPH_API_URL_PRODUCTION_XDAI,
 } from '../constants/config'
@@ -38,6 +40,12 @@ function createAdditionalServiceApi(): AdditionalServicesApi {
       networkId: 5,
       graph_url_production: GRAPH_API_URL_PRODUCTION_GOERLI,
       graph_url_develop: GRAPH_API_URL_DEVELOP_GOERLI,
+    })
+  if (GRAPH_API_URL_DEVELOP_MUMBAI)
+    config.push({
+      networkId: 80001,
+      graph_url_production: GRAPH_API_URL_PRODUCTION_MUMBAI,
+      graph_url_develop: GRAPH_API_URL_DEVELOP_MUMBAI,
     })
   const dexPriceEstimatorApi = new AdditionalServicesApiImpl(config)
 

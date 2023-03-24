@@ -14,6 +14,8 @@ export const GRAPH_API_URL_DEVELOP_POLYGON = process.env.REACT_APP_GRAPH_API_URL
 export const GRAPH_API_URL_PRODUCTION_POLYGON = process.env.REACT_APP_GRAPH_API_URL_POLYGON
 export const GRAPH_API_URL_DEVELOP_XDAI = process.env.REACT_APP_GRAPH_API_URL_XDAI
 export const GRAPH_API_URL_PRODUCTION_XDAI = process.env.REACT_APP_GRAPH_API_URL_XDAI
+export const GRAPH_API_URL_DEVELOP_MUMBAI = process.env.REACT_APP_GRAPH_API_URL_MUMBAI
+export const GRAPH_API_URL_PRODUCTION_MUMBAI = process.env.REACT_APP_GRAPH_API_URL_MUMBAI
 
 // Infura bridges like 'https://mainnet.infura.io/v3/...'
 export const NETWORK_URL_GOERLI = process.env.REACT_APP_NETWORK_URL_GOERLI || ''
@@ -22,6 +24,8 @@ export const NETWORK_URL_POLYGON =
   process.env.REACT_APP_NETWORK_URL_POLYGON || 'https://polygon-rpc.com'
 export const NETWORK_URL_XDAI =
   process.env.REACT_APP_NETWORK_URL_XDAI || 'https://rpc.xdaichain.com/'
+export const NETWORK_URL_MUMBAI =
+  process.env.REACT_APP_NETWORK_URL_MUMBAI || 'https://rpc-mumbai.maticvigil.com/'
 
 // Wallet connect keys
 export const FORTMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY || ''

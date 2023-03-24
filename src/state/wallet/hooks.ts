@@ -95,7 +95,7 @@ export function useTokenBalancesTreatWETHAsETH(
 ): { [tokenAddress: string]: TokenAmount | undefined } {
   const { chainId } = useActiveWeb3React()
   const { includesWETH, tokensWithoutWETH } = useMemo(() => {
-    if (!tokens || tokens.length === 0) {
+    if (!tokens || tokens.length === 0 || !WETH[chainId as ChainId]) {
       return { includesWETH: false, tokensWithoutWETH: [] }
     }
     let includesWETH = false
