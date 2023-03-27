@@ -382,14 +382,14 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
         // for bad requests
         throw res.error
       }
-      let order = res.data.auctionDetail.orders[0]
+      let order = res.data.auctionDetail.ordersWithoutClaimed[0]
       if (!order) {
         return queueStartElement
       }
       // Sort the orders by their price and volume
-      const sortedOrders = res.data.auctionDetail.orders.sort((a, b) => {
-        if (a.price === b.price) return b.volume - a.volume
-        return b.price - a.price
+      const sortedOrders = [...res.data.auctionDetail.ordersWithoutClaimed].sort((a, b) => {
+        if (a.price === b.price) return a.volume - b.volume
+        return a.price - b.price
       })
       order = sortedOrders[0]
       order = {
