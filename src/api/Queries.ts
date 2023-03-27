@@ -209,7 +209,7 @@ export const GET_CLEARING_ORDER_AND_VOLUME = `
 export const GET_PREVIOUS_ORDER = `
   query GetPreviousOrder($id: ID, $price: String) {
     auctionDetail(id: $id) {
-      ordersWithoutClaimed(orderBy: price, orderDirection: asc, where: {price_gte: $price}) {
+      ordersWithoutClaimed(orderBy: price, orderDirection: asc, where: {price_gt: $price}) {
         buyAmount
         sellAmount
         userId
