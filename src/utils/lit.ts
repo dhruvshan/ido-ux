@@ -49,6 +49,7 @@ export const getChainName = (chainId: number) => {
     (chainId === ChainId.MAINNET && 'ethereum') ||
     (chainId === ChainId.XDAI && 'xdai') ||
     (chainId === ChainId.MATIC && 'polygon') ||
+    (chainId === ChainId.MUMBAI && 'mumbai') ||
     'ethereum'
   )
 }
