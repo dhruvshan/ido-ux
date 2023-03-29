@@ -58,9 +58,10 @@ const OverviewCommon = ({ allAuctions }: OverviewProps) => {
   const featuredAuctions = useInterestingAuctionInfo()
 
   const allAuctionsSorted = allAuctions?.sort((a, b) => {
-    const aStatus = new Date(a.endTimeTimestamp * 1000) > new Date() ? 'Ongoing' : 'Ended'
-    const bStatus = new Date(b.endTimeTimestamp * 1000) > new Date() ? 'Ongoing' : 'Ended'
-    return bStatus.localeCompare(aStatus) || b.interestScore - a.interestScore
+    return b.endTimeTimestamp - a.endTimeTimestamp
+    // const aStatus = new Date(a.endTimeTimestamp * 1000) > new Date() ? 'Ongoing' : 'Ended'
+    // const bStatus = new Date(b.endTimeTimestamp * 1000) > new Date() ? 'Ongoing' : 'Ended'
+    // return bStatus.localeCompare(aStatus) || b.interestScore - a.interestScore
   })
 
   useSetNoDefaultNetworkId()
