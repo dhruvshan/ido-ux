@@ -62,7 +62,7 @@ const PriceInputPanel = (props: Props) => {
     ...restProps
   } = props
 
-  const [readonly, setReadonly] = useState(true)
+  // const [readonly, setReadonly] = useState(true)
   const error = info?.type === InfoType.error
 
   const { auctioningTokenDisplay, biddingTokenDisplay } = useMemo(() => {
@@ -131,12 +131,12 @@ const PriceInputPanel = (props: Props) => {
           )}
           <FieldRowInput
             hasError={error}
-            onBlur={() => setReadonly(true)}
-            onFocus={() => setReadonly(false)}
+            // onBlur={() => setReadonly(true)}
+            // onFocus={() => setReadonly(false)}
             onUserSellAmountInput={(val) => {
               onUserPriceInput(val, invertPrices)
             }}
-            readOnly={readonly}
+            // readOnly={readonly}
             value={value}
           />
         </FieldRowBottom>

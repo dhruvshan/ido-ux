@@ -125,7 +125,7 @@ const AmountInputPanel: React.FC<Props> = (props) => {
     wrap,
     ...restProps
   } = props
-  const [readonly, setReadonly] = useState(true)
+  // const [readonly, setReadonly] = useState(true)
   const { account } = useActiveWeb3React()
   const isUnlocking = unlock.unlockState === ApprovalState.PENDING
   const error = info?.type === InfoType.error
@@ -205,14 +205,14 @@ const AmountInputPanel: React.FC<Props> = (props) => {
             )}
           </Wrap>
           <FieldRowInput
-            disabled={!account}
+            // disabled={!account}
             hasError={error}
-            onBlur={() => setReadonly(true)}
-            onFocus={() => setReadonly(false)}
+            // onBlur={() => setReadonly(true)}
+            // onFocus={() => setReadonly(false)}
             onUserSellAmountInput={(val) => {
               onUserSellAmountInput(val)
             }}
-            readOnly={readonly}
+            // readOnly={false}
             value={value}
           />
         </FieldRowBottom>
