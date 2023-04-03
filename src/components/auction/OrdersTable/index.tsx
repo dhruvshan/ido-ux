@@ -141,7 +141,6 @@ const OrdersTable: React.FC<OrdersTableProps> = (props) => {
   const cancelOrderCallback = useCancelOrderCallback(
     auctionIdentifier,
     derivedAuctionInfo?.biddingToken,
-    orderId,
   )
 
   const resetModal = useCallback(() => {

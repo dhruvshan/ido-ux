@@ -2,8 +2,7 @@ import { useMemo } from 'react'
 
 import { BigNumber } from '@ethersproject/bignumber'
 import { Fraction, Token } from '@josojo/honeyswap-sdk'
-import { writeContract } from '@wagmi/core'
-import { usePrepareContractWrite } from 'wagmi'
+import { prepareWriteContract, writeContract } from '@wagmi/core'
 
 import { decodeOrder } from './Order'
 import { useActiveWeb3React } from './index'
@@ -21,24 +20,15 @@ const logger = getLogger('useCancelOrderCallback')
 export function useCancelOrderCallback(
   auctionIdentifier: AuctionIdentifier,
   biddingToken: Token,
-  orderId: string | null,
 ): null | ((orderId: string) => Promise<string>) {
   const { account, chainId } = useActiveWeb3React()
   const addTransaction = useTransactionAdder()
   const { onCancelOrder: actionCancelOrder } = useOrderActionHandlers()
   const { auctionId, chainId: orderChainId } = auctionIdentifier
 
-  const { config } = usePrepareContractWrite({
-    address: getEasyAuctionAddress(chainId || 1),
-    abi: EASY_AUCTION_ABI,
-    functionName: 'cancelSellOrders',
-    args: [auctionId, [orderId]],
-    enabled: !!orderId,
-  })
-
   return useMemo(() => {
     return async function onCancelOrder(orderId: string) {
-      if (!chainId || !account || !config) {
+      if (!chainId || !account) {
         throw new Error('missing dependencies in onCancelOrder callback')
       }
 
@@ -51,6 +41,13 @@ export function useCancelOrderCallback(
       }
 
       const decodedOrder = decodeOrder(orderId)
+
+      const config = await prepareWriteContract({
+        address: getEasyAuctionAddress(chainId || 1),
+        abi: EASY_AUCTION_ABI,
+        functionName: 'cancelSellOrders',
+        args: [auctionId, [orderId]],
+      })
 
       return writeContract(config)
         .then((response) => {
@@ -76,9 +73,9 @@ export function useCancelOrderCallback(
         })
     }
   }, [
-    config,
     chainId,
     account,
+    auctionId,
     orderChainId,
     addTransaction,
     biddingToken.decimals,
