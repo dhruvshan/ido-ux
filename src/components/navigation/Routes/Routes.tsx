@@ -97,6 +97,7 @@ const Routes: React.FC<RouteComponentProps> = (props) => {
                 path="/docs/Private-Auctions-And-KYC-solutions"
                 strict
               />
+              <Route component={Documentation} exact path="/docs/supported-networks" strict />
               <Route component={Documentation} exact path="/docs/vested-tokens" strict />
               <Route component={Documentation} exact path="/docs/media-kit" strict />
               <Route component={Documentation} exact path="/docs/faq" strict />

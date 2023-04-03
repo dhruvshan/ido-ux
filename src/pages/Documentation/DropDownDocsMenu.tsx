@@ -92,6 +92,7 @@ function DropDownDocsMenu() {
     if (location.pathname === '/docs/settle-an-auction') setSelectDocs('Settle an auction')
     if (location.pathname === '/docs/private-auctions-and-KYC-solutions')
       setSelectDocs('Private auctions/KYC solutions')
+    if (location.pathname === '/docs/supported-networks') setSelectDocs('Supported Networks')
     if (location.pathname === '/docs/media-kit') setSelectDocs('Media kit')
     if (location.pathname === '/docs/vested-tokens') setSelectDocs('Vested Tokens')
     if (location.pathname === '/docs/faq') setSelectDocs('FAQ')
@@ -158,6 +159,11 @@ function DropDownDocsMenu() {
               <DropDownListItem onClick={() => handleDropDownFocus(open)}>
                 <IndexLink activeClassName="isActive" to="/docs/private-auctions-and-KYC-solutions">
                   Private auctions/KYC solutions
+                </IndexLink>
+              </DropDownListItem>
+              <DropDownListItem onClick={() => handleDropDownFocus(open)}>
+                <IndexLink activeClassName="isActive" to="/docs/supported-networks">
+                  Supported Networks
                 </IndexLink>
               </DropDownListItem>
               <DropDownListItem onClick={() => handleDropDownFocus(open)}>

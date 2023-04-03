@@ -19,6 +19,7 @@ import privateAuctionsAndKYCSolutions from '../../docs/files/devguide09.md'
 import mediaKitDocMarkdown from '../../docs/files/devguide11.md'
 import vestedTokens from '../../docs/files/devguide12.md'
 import settlingAnAuction from '../../docs/files/devguide13.md'
+import networkChainSupport from '../../docs/files/devguide14.md'
 
 const Wrapper = styled.div`
   padding-bottom: 50px;
@@ -197,6 +198,7 @@ export const Documentation: React.FC = (props) => {
     if (location.pathname === '/docs/settle-an-auction') fetchGuide(settlingAnAuction)
     if (location.pathname === '/docs/private-auctions-and-KYC-solutions')
       fetchGuide(privateAuctionsAndKYCSolutions)
+    if (location.pathname === '/docs/supported-networks') fetchGuide(networkChainSupport)
     if (location.pathname === '/docs/media-kit') fetchGuide(mediaKitDocMarkdown)
     if (location.pathname === '/docs/vested-tokens') fetchGuide(vestedTokens)
     if (location.pathname === '/docs/faq') fetchGuide(faqDocMarkdown)
@@ -233,6 +235,9 @@ export const Documentation: React.FC = (props) => {
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/private-auctions-and-KYC-solutions">
             Private auctions/KYC solutions
+          </IndexLink>
+          <IndexLink activeClassName="isActive" to="/docs/supported-networks">
+            Supported Networks
           </IndexLink>
           <IndexLink activeClassName="isActive" to="/docs/vested-tokens">
             Vested tokens
