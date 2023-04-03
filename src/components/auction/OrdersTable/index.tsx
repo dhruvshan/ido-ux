@@ -130,10 +130,6 @@ const OrdersTable: React.FC<OrdersTableProps> = (props) => {
     ...restProps
   } = props
   const orders: OrderState | undefined = useOrderState()
-  const cancelOrderCallback = useCancelOrderCallback(
-    auctionIdentifier,
-    derivedAuctionInfo?.biddingToken,
-  )
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
   const [showWarning, setShowWarning] = useState<boolean>(false)
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirmed
@@ -142,6 +138,11 @@ const OrdersTable: React.FC<OrdersTableProps> = (props) => {
   const [txHash, setTxHash] = useState<string>('')
   const [orderId, setOrderId] = useState<string>('')
   const { showPriceInverted } = useOrderPlacementState()
+  const cancelOrderCallback = useCancelOrderCallback(
+    auctionIdentifier,
+    derivedAuctionInfo?.biddingToken,
+    orderId,
+  )
 
   const resetModal = useCallback(() => {
     setPendingConfirmation(true)

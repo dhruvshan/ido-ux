@@ -2,6 +2,7 @@ import { JSBI, Percent } from '@josojo/honeyswap-sdk'
 
 import ArrowRightIcon from '../assets/images/arrow-right.svg'
 import CoinbaseWalletIcon from '../assets/images/coinbaseWalletIcon.svg'
+import GnosisSafeIcon from '../assets/images/gnosis-safe.svg'
 import MetamaskIcon from '../assets/images/metamask.svg'
 import PortisIcon from '../assets/images/portisIcon.png'
 import TrustWalletIcon from '../assets/images/trustWallet.png'
@@ -49,6 +50,22 @@ const MAINNET_WALLETS = {
     description: 'Easy-to-use browser extension.',
     href: null,
     color: '#E8831D',
+  },
+  COINBASE_LINK: {
+    name: 'Open in Coinbase Wallet',
+    icon: CoinbaseWalletIcon,
+    description: 'Open in Coinbase Wallet app.',
+    href: 'https://go.cb-w.com/mtUDhEZPy1',
+    color: '#315CF5',
+    mobile: true,
+    mobileOnly: true,
+  },
+  SAFE: {
+    name: 'Gnosis Safe',
+    icon: GnosisSafeIcon,
+    description: 'Use the Gnosis Safe wallet to manage your auctions',
+    href: null,
+    color: '#3c8974',
   },
   WALLET_CONNECT: {
     connector: walletconnect,
@@ -100,6 +117,13 @@ const EXTRA_WALLETS = {
     color: '#4A6C9B',
     mobile: true,
   },
+}
+export const WALLET_ICONS = {
+  metaMask: MetamaskIcon,
+  injected: ArrowRightIcon,
+  walletConnect: WalletConnectIcon,
+  coinbaseWallet: CoinbaseWalletIcon,
+  safe: GnosisSafeIcon,
 }
 export const SUPPORTED_WALLETS = MAINNET_WALLETS
 

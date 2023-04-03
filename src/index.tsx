@@ -4,7 +4,9 @@ import ReactDOM from 'react-dom'
 import { Web3Provider } from '@ethersproject/providers'
 import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import { Provider } from 'react-redux'
+import { WagmiConfig } from 'wagmi'
 
+import { wagmiClient } from './connectors/index'
 import { NetworkContextName } from './constants'
 import './i18n'
 import App from './pages/App'
@@ -38,14 +40,16 @@ ReactDOM.render(
   <>
     <Web3ReactProvider getLibrary={getLibrary}>
       <Web3ProviderNetwork getLibrary={getLibrary}>
-        <Provider store={store}>
-          <Updaters />
-          <ThemeProvider>
-            <GlobalStyle />
-            <ThemedGlobalStyle />
-            <App />
-          </ThemeProvider>
-        </Provider>
+        <WagmiConfig client={wagmiClient}>
+          <Provider store={store}>
+            <Updaters />
+            <ThemeProvider>
+              <GlobalStyle />
+              <ThemedGlobalStyle />
+              <App />
+            </ThemeProvider>
+          </Provider>
+        </WagmiConfig>
       </Web3ProviderNetwork>
     </Web3ReactProvider>
   </>,

@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { WalletConnectConnector } from '@anxolin/walletconnect-connector'
-import { AbstractConnector } from '@web3-react/abstract-connector'
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
+import { UnsupportedChainIdError } from '@web3-react/core'
 import { event } from 'react-ga'
+import { Connector, useAccount, useConnect } from 'wagmi'
 
 import { injected } from '../../../connectors'
-import { SUPPORTED_WALLETS } from '../../../constants'
+import { WALLET_ICONS } from '../../../constants'
 import usePrevious from '../../../hooks/usePrevious'
 import { useWalletModalOpen, useWalletModalToggle } from '../../../state/application/hooks'
 import { useOrderPlacementState } from '../../../state/orderPlacement/hooks'
@@ -79,9 +78,10 @@ const WALLET_VIEWS = {
 }
 
 const WalletModal: React.FC = () => {
-  const { account, activate, active, connector, deactivate, error } = useWeb3React()
+  const { connect, connectors, error } = useConnect()
+  const { address: account, connector, isConnected: active } = useAccount()
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
-  const [pendingWallet, setPendingWallet] = useState<AbstractConnector>()
+  const [pendingWallet, setPendingWallet] = useState<Connector>()
   const [pendingError, setPendingError] = useState<boolean>()
   const walletModalOpen = useWalletModalOpen()
   const toggleWalletModal = useWalletModalToggle()
@@ -131,62 +131,24 @@ const WalletModal: React.FC = () => {
     connectorPrevious,
   ])
 
-  const tryActivation = async (connector: AbstractConnector) => {
-    let name = ''
-    Object.keys(SUPPORTED_WALLETS).map((key) => {
-      if (connector === SUPPORTED_WALLETS[key].connector) {
-        return (name = SUPPORTED_WALLETS[key].name)
-      }
-      return true
-    })
+  const tryActivation = async (connector: Connector) => {
     event({
       category: 'Wallet',
       action: 'Change Wallet',
-      label: name,
+      label: connector.name,
     })
-
     try {
       // We check the metamask networkId
-      // const provider = new Web3Provider(window.ethereum, 'any')
-      // const { chainId: walletNetworkId } = await provider.getNetwork()
-      // if (!Object.values(ChainId).includes(walletNetworkId)) {
-      //   throw new UnsupportedChainIdError(
-      //     walletNetworkId,
-      //     Object.keys(ChainId).map((chainId) => Number(chainId)),
-      //   )
-      // }
-
-      // if connector is an object with the set variable of [chainId], we know that its walletconnect object
-      // otherwise, we will just use Metamask connector object
-      if (connector[chainId]) {
-        setPendingWallet(connector) // set wallet for pending view
-        setWalletView(WALLET_VIEWS.PENDING)
-
-        const walletConnect = connector[chainId]
-        // if the user has already tried to connect, manually reset the connector
-        if (walletConnect.walletConnectProvider?.wc?.uri) {
-          walletConnect.walletConnectProvider = undefined
-        }
-
-        await activate(walletConnect, undefined, true)
-      } else {
-        setPendingWallet(connector) // set wallet for pending view
-        setWalletView(WALLET_VIEWS.PENDING)
-        const hasSetup = await setupNetwork(chainId)
-        if (hasSetup) {
-          await activate(connector, undefined, true)
-        }
+      setPendingWallet(connector) // set wallet for pending view
+      setWalletView(WALLET_VIEWS.PENDING)
+      const hasSetup = await setupNetwork(chainId)
+      if (hasSetup) {
+        await connect({ connector })
       }
     } catch (error) {
       if (error instanceof UnsupportedChainIdError) {
         // a little janky...can't use setError because the connector isn't set
-        const muteWalletConnectError = () => {
-          deactivate()
-          setWalletConnectChainError(NetworkError.noChainMatch)
-        }
-        connector[chainId] instanceof WalletConnectConnector
-          ? activate(connector[chainId], muteWalletConnectError)
-          : activate(connector)
+        connect({ connector })
       } else {
         setPendingError(true)
       }
@@ -196,16 +158,13 @@ const WalletModal: React.FC = () => {
   const getOptions = () => {
     const isMetamask = window.ethereum && window.ethereum.isMetaMask
 
-    return Object.keys(SUPPORTED_WALLETS).map((key) => {
-      const option = SUPPORTED_WALLETS[key]
-
-      // overwrite injected when needed
-      if (option.connector === injected) {
+    return connectors.map((currentConnector) => {
+      if (currentConnector === injected) {
         if (!(window.web3 || window.ethereum)) {
           return null //dont want to return install twice
-        } else if (option.name === 'MetaMask' && !isMetamask) {
+        } else if (currentConnector.name === 'MetaMask' && !isMetamask) {
           return null
-        } else if (option.name === 'Injected' && isMetamask) {
+        } else if (currentConnector.id === 'injected' && isMetamask) {
           return null
         }
       }
@@ -213,14 +172,14 @@ const WalletModal: React.FC = () => {
       return (
         <Option
           disabled={!termsAccepted}
-          icon={option.icon}
-          key={key}
+          icon={WALLET_ICONS[currentConnector.id]}
+          key={currentConnector.id}
           onClick={() => {
-            option.connector === connector
+            currentConnector === connector
               ? setWalletView(WALLET_VIEWS.ACCOUNT)
-              : !option.href && tryActivation(option.connector)
+              : tryActivation(currentConnector)
           }}
-          text={option.name}
+          text={currentConnector.name}
         />
       )
     })

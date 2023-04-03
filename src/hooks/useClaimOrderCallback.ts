@@ -1,21 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { BigNumber } from '@ethersproject/bignumber'
-import { Contract } from '@ethersproject/contracts'
 import { Token, TokenAmount } from '@josojo/honeyswap-sdk'
+import { useContractRead, useContractWrite, usePrepareContractWrite } from 'wagmi'
 
 import { additionalServiceApi } from './../api'
 import { Order, decodeOrder } from './Order'
 import { useActiveWeb3React } from './index'
 import { useAuctionDetails } from './useAuctionDetails'
-import { useGasPrice } from './useGasPrice'
+import EASY_AUCTION_ABI from '../constants/abis/easyAuction/easyAuction.json'
 import { DerivedAuctionInfo } from '../state/orderPlacement/hooks'
 import { AuctionIdentifier } from '../state/orderPlacement/reducer'
 import { useHasPendingClaim, useTransactionAdder } from '../state/transactions/hooks'
-import { ChainId, calculateGasMargin, getEasyAuctionContract } from '../utils'
-import { getLogger } from '../utils/logger'
-
-const logger = getLogger('useClaimOrderCallback')
+import { ChainId, getEasyAuctionAddress } from '../utils'
 
 export const queueStartElement =
   '0x0000000000000000000000000000000000000000000000000000000000000001'
@@ -247,41 +244,33 @@ export function useGetAuctionProceeds(
 export const useClaimOrderCallback = (
   auctionIdentifier: AuctionIdentifier,
 ): [ClaimState, () => Promise<Maybe<string>>] => {
-  const { account, library } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const addTransaction = useTransactionAdder()
 
   const { auctionId, chainId } = auctionIdentifier
   const { claimInfo, error } = useGetClaimInfo(auctionIdentifier)
-  const gasPrice = useGasPrice(chainId)
+
+  const { config } = usePrepareContractWrite({
+    address: getEasyAuctionAddress(chainId as ChainId),
+    abi: EASY_AUCTION_ABI,
+    functionName: 'claimFromParticipantOrder',
+    args: [auctionId, claimInfo?.sellOrdersFormUser],
+  })
+
+  const { writeAsync } = useContractWrite(config)
 
   const claimCallback = useCallback(async (): Promise<Maybe<string>> => {
-    if (!chainId || !library || !account || error || !claimInfo) {
+    if (!chainId || !account || error || !claimInfo || !config || !writeAsync) {
       throw new Error('missing dependencies in onPlaceOrder callback')
     }
 
-    const easyAuctionContract: Contract = getEasyAuctionContract(
-      chainId as ChainId,
-      library,
-      account,
-    )
-
-    const estimate = easyAuctionContract.estimateGas.claimFromParticipantOrder
-    const method: Function = easyAuctionContract.claimFromParticipantOrder
-    const args: Array<string | string[] | number> = [auctionId, claimInfo?.sellOrdersFormUser]
-    const value: Maybe<BigNumber> = null
-
-    const estimatedGasLimit = await estimate(...args, value ? { value } : {})
-    const response = await method(...args, {
-      ...(value ? { value } : {}),
-      gasPrice,
-      gasLimit: calculateGasMargin(estimatedGasLimit),
-    })
+    const response = await writeAsync()
 
     addTransaction(response, {
       summary: `Claiming tokens auction-${auctionId}`,
     })
     return response.hash
-  }, [account, addTransaction, chainId, error, gasPrice, library, auctionId, claimInfo])
+  }, [account, addTransaction, chainId, error, auctionId, claimInfo, config, writeAsync])
 
   const claimableOrders = claimInfo?.sellOrdersFormUser
   const pendingClaim = useHasPendingClaim(auctionIdentifier.auctionId, account)
@@ -296,7 +285,7 @@ export function useGetClaimState(
   pendingClaim?: Boolean,
 ): ClaimState {
   const [claimStatus, setClaimStatus] = useState<ClaimState>(ClaimState.UNKNOWN)
-  const { account, library } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { auctionId, chainId } = auctionIdentifier
 
   useEffect(() => {
@@ -304,51 +293,38 @@ export function useGetClaimState(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auctionId, chainId, account])
 
+  const { data: hasAvailableClaim } = useContractRead({
+    address: getEasyAuctionAddress(chainId as ChainId),
+    abi: EASY_AUCTION_ABI,
+    enabled: !!account || !!claimableOrders || !!claimableOrders?.length,
+    functionName: 'containsOrder',
+    args: [auctionId, claimableOrders?.[0]],
+  })
+
   useEffect(() => {
     let cancelled = false
 
-    if (!claimableOrders) return
+    if (!claimableOrders || hasAvailableClaim === undefined) return
 
     if (claimableOrders.length === 0) {
       setClaimStatus(ClaimState.NOT_APPLICABLE)
       return
     }
 
-    async function userHasAvailableClaim() {
-      try {
-        if (!library || !account || !claimableOrders) return
-
-        const easyAuctionContract: Contract = getEasyAuctionContract(
-          chainId as ChainId,
-          library,
-          account,
-        )
-
-        const method: Function = easyAuctionContract.containsOrder
-        const args: Array<number | string> = [auctionId, claimableOrders[0]]
-
-        const hasAvailableClaim = await method(...args)
-
-        if (!cancelled) {
-          setClaimStatus(
-            hasAvailableClaim
-              ? pendingClaim
-                ? ClaimState.PENDING
-                : ClaimState.NOT_CLAIMED
-              : ClaimState.CLAIMED,
-          )
-        }
-      } catch (error) {
-        if (cancelled) return
-        logger.error(error)
-      }
+    if (!cancelled) {
+      setClaimStatus(
+        hasAvailableClaim
+          ? pendingClaim
+            ? ClaimState.PENDING
+            : ClaimState.NOT_CLAIMED
+          : ClaimState.CLAIMED,
+      )
     }
-    userHasAvailableClaim()
 
     return (): void => {
       cancelled = true
     }
-  }, [account, auctionId, chainId, claimableOrders, library, pendingClaim])
+  }, [account, auctionId, chainId, claimableOrders, pendingClaim, hasAvailableClaim])
 
   return claimStatus
 }

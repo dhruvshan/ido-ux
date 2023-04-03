@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 
+import { fetchTransaction } from '@wagmi/core'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { finalizeTransaction } from './actions'
@@ -32,48 +33,49 @@ export default function Updater() {
     Object.keys(allTransactions)
       .filter((hash) => !allTransactions[hash].receipt)
       .forEach((hash) => {
-        library
-          .getTransactionReceipt(hash)
-          .then((receipt) => {
-            if (receipt) {
-              dispatch(
-                finalizeTransaction({
-                  chainId,
-                  hash,
-                  receipt: {
-                    blockHash: receipt.blockHash,
-                    blockNumber: receipt.blockNumber,
-                    contractAddress: receipt.contractAddress,
-                    from: receipt.from,
-                    status: receipt.status,
-                    to: receipt.to,
-                    transactionHash: receipt.transactionHash,
-                    transactionIndex: receipt.transactionIndex,
-                  },
-                }),
-              )
-              dispatch(finalizeOrderCancellation())
-              dispatch(finalizeOrderPlacement())
-              dispatch(pullOrderbookData())
-              // add success or failure popup
-              if (receipt.status === 1) {
-                addPopup({
-                  txn: {
+        fetchTransaction({ hash })
+          .then((transactionResponse) => {
+            transactionResponse.wait(1).then((receipt) => {
+              if (receipt) {
+                dispatch(
+                  finalizeTransaction({
+                    chainId,
                     hash,
-                    success: true,
-                    summary: allTransactions[hash]?.summary,
-                  },
-                })
-              } else {
-                addPopup({
-                  txn: {
-                    hash,
-                    success: false,
-                    summary: allTransactions[hash]?.summary,
-                  },
-                })
+                    receipt: {
+                      blockHash: receipt.blockHash,
+                      blockNumber: receipt.blockNumber,
+                      contractAddress: receipt.contractAddress,
+                      from: receipt.from,
+                      status: receipt.status,
+                      to: receipt.to,
+                      transactionHash: receipt.transactionHash,
+                      transactionIndex: receipt.transactionIndex,
+                    },
+                  }),
+                )
+                dispatch(finalizeOrderCancellation())
+                dispatch(finalizeOrderPlacement())
+                dispatch(pullOrderbookData())
+                // add success or failure popup
+                if (receipt.status === 1) {
+                  addPopup({
+                    txn: {
+                      hash,
+                      success: true,
+                      summary: allTransactions[hash]?.summary,
+                    },
+                  })
+                } else {
+                  addPopup({
+                    txn: {
+                      hash,
+                      success: false,
+                      summary: allTransactions[hash]?.summary,
+                    },
+                  })
+                }
               }
-            }
+            })
           })
           .catch((error) => {
             logger.error(`failed to check transaction hash: ${hash}`, error)

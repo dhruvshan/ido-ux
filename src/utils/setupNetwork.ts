@@ -1,4 +1,4 @@
-import { ChainId, NETWORK_CONFIGS } from '.'
+import { ChainId, NETWORK_CONFIGS } from './networkConfig'
 
 export const setupNetwork = async (chainId: ChainId) => {
   const provider = (window as Window).ethereum
@@ -33,11 +33,11 @@ export const setupNetwork = async (chainId: ChainId) => {
               chainName: config.name,
               nativeCurrency: {
                 name: config.name,
-                symbol: config.symbol,
+                symbol: config.nativeCurrency.symbol,
                 decimals: 18,
               },
-              rpcUrls: [config.rpc],
-              blockExplorerUrls: [config.explorer],
+              rpcUrls: [config.rpcUrls.default.http],
+              blockExplorerUrls: [config.blockExplorers?.default.url],
             },
           ],
         })

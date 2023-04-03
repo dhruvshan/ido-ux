@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { useDispatch } from 'react-redux'
+import { useBlockNumber } from 'wagmi'
 
 import { updateBlockNumber } from './actions'
 import { useActiveWeb3React } from '../../hooks'
 import useDebounce from '../../hooks/useDebounce'
 import useIsWindowVisible from '../../hooks/useIsWindowVisible'
-import { getLogger } from '../../utils/logger'
-
-const logger = getLogger('Updater')
 
 export default function Updater() {
   const { account, chainId, library } = useActiveWeb3React()
@@ -36,24 +34,11 @@ export default function Updater() {
     [chainId, setBlockchainState],
   )
 
-  // update block number
-  useEffect(() => {
-    if (!account || !library || !chainId) return
-
-    setBlockchainState({ chainId, blockNumber: null })
-
-    library
-      .getBlockNumber()
-      .then((blockNumber) => {
-        blockNumberCallback(blockNumber)
-      })
-      .catch((error) => logger.error(`Failed to get block number for chainId ${chainId}`, error))
-
-    library.on('block', blockNumberCallback)
-    return () => {
-      library.removeListener('block', blockNumberCallback)
-    }
-  }, [dispatch, account, chainId, library, blockNumberCallback])
+  useBlockNumber({
+    onBlock: blockNumberCallback,
+    watch: true,
+    enabled: !!account && !!library && !!chainId,
+  })
 
   // because blocks arrive in bunches with longer polling periods, we just want
   // to process the latest one.
