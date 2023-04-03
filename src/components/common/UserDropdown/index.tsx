@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { WalletConnectConnector } from '@anxolin/walletconnect-connector'
-import { useWeb3React } from '@web3-react/core'
 
 import { useActiveWeb3React } from '../../../hooks'
 import { useDarkModeManager } from '../../../state/user/hooks'
@@ -148,8 +147,7 @@ const DisconnectButton = styled(Button)`
 `
 
 const UserDropdownButton = () => {
-  const { account } = useWeb3React()
-  const { chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   return (
     <DropdownButton>
@@ -176,20 +174,14 @@ export const UserDropdown: React.FC<Props> = (props) => {
   const [transactionsModalVisible, setTransactionsModalVisible] = React.useState(false)
   const [darkMode, toggleDarkMode] = useDarkModeManager()
 
-  const { connector, deactivate, library } = useActiveWeb3React()
+  const { connector, deactivate } = useActiveWeb3React()
 
   const getWalletName = React.useCallback((): string => {
-    const provider = library?.provider
+    const isMetaMask = connector ? connector.id === 'metaMask' : undefined
+    const isSafe = connector ? connector.id === 'safe' : undefined
 
-    const isMetaMask = provider
-      ? Object.prototype.hasOwnProperty.call(provider, 'isMetaMask') && provider?.isMetaMask
-      : undefined
-    const isWalletConnect = provider
-      ? Object.prototype.hasOwnProperty.call(provider, 'wc')
-      : undefined
-
-    return isMetaMask ? 'MetaMask' : isWalletConnect ? 'WalletConnect' : 'Unknown'
-  }, [library])
+    return isMetaMask ? 'MetaMask' : isSafe ? 'Safe' : 'Unknown'
+  }, [connector])
 
   const disconnect = React.useCallback(async () => {
     deactivate()

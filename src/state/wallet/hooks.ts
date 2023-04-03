@@ -1,13 +1,14 @@
 import { useMemo } from 'react'
 
 import { JSBI, Token, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
+import { useContractReads } from 'wagmi'
 
-import ERC20_INTERFACE from '../../constants/abis/erc20'
+import ERC20_ABI from '../../constants/abis/erc20.json'
+import { MULTICALL_ABI } from '../../constants/multicall'
 import { useActiveWeb3React } from '../../hooks'
 import { useAllTokens } from '../../hooks/Tokens'
 import { useMulticallContract } from '../../hooks/useContract'
 import { ChainId, isAddress } from '../../utils'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from '../multicall/hooks'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -28,16 +29,19 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
     [uncheckedAddresses],
   )
 
-  const results = useSingleContractMultipleData(
-    multicallContract,
-    'getEthBalance',
-    addresses.map((address) => [address]),
-  )
+  const { data: results } = useContractReads({
+    contracts: [...addresses].map((address) => ({
+      address: multicallContract?.address,
+      abi: MULTICALL_ABI,
+      functionName: 'getEthBalance',
+      functionParams: [address],
+    })),
+  })
 
   return useMemo(
     () =>
       addresses.reduce<{ [address: string]: JSBI | undefined }>((memo, address, i) => {
-        const value = results?.[i]?.result?.[0]
+        const value = results?.[i]
         if (value) memo[address] = JSBI.BigInt(value.toString())
         return memo
       }, {}),
@@ -62,12 +66,14 @@ export function useTokenBalances(
     [validatedTokens],
   )
 
-  const balances = useMultipleContractSingleData(
-    validatedTokenAddresses,
-    ERC20_INTERFACE,
-    'balanceOf',
-    [address],
-  )
+  const { data: balances } = useContractReads({
+    contracts: validatedTokenAddresses.map((validatedTokenAddress) => ({
+      address: validatedTokenAddress,
+      abi: ERC20_ABI,
+      functionName: 'balanceOf',
+      args: [address],
+    })),
+  })
 
   return useMemo(
     () =>
@@ -75,7 +81,7 @@ export function useTokenBalances(
         ? validatedTokens.reduce<{
             [tokenAddress: string]: TokenAmount | undefined
           }>((memo, token, i) => {
-            const value = balances?.[i]?.result?.[0]
+            const value = balances?.[i]
             const amount = value ? JSBI.BigInt(value.toString()) : undefined
             if (amount) {
               memo[token.address] = new TokenAmount(token, amount)
@@ -95,13 +101,13 @@ export function useTokenBalancesTreatWETHAsETH(
 ): { [tokenAddress: string]: TokenAmount | undefined } {
   const { chainId } = useActiveWeb3React()
   const { includesWETH, tokensWithoutWETH } = useMemo(() => {
-    if (!tokens || tokens.length === 0 || !WETH[chainId as ChainId]) {
+    if (!tokens || tokens.length === 0 || !chainId) {
       return { includesWETH: false, tokensWithoutWETH: [] }
     }
     let includesWETH = false
     const tokensWithoutWETH = tokens.filter((t) => {
       if (!chainId) return true
-      const isWETH = t?.equals(WETH[chainId as ChainId]) ?? false
+      const isWETH = (!!WETH[chainId as ChainId] && t?.equals(WETH[chainId as ChainId])) ?? false
       if (isWETH) includesWETH = true
       return !isWETH
     })

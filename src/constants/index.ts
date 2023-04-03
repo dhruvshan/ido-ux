@@ -2,11 +2,12 @@ import { JSBI, Percent } from '@josojo/honeyswap-sdk'
 
 import ArrowRightIcon from '../assets/images/arrow-right.svg'
 import CoinbaseWalletIcon from '../assets/images/coinbaseWalletIcon.svg'
+import GnosisSafeIcon from '../assets/images/gnosis-safe.svg'
 import MetamaskIcon from '../assets/images/metamask.svg'
 import PortisIcon from '../assets/images/portisIcon.png'
 import TrustWalletIcon from '../assets/images/trustWallet.png'
 import WalletConnectIcon from '../assets/images/wallet-connect.svg'
-import { injected, portis, walletconnect, walletlink } from '../connectors'
+import { injected, portis, walletconnect } from '../connectors'
 
 export const chainNames = {
   1: 'Mainnet',
@@ -50,6 +51,22 @@ const MAINNET_WALLETS = {
     href: null,
     color: '#E8831D',
   },
+  COINBASE_LINK: {
+    name: 'Open in Coinbase Wallet',
+    icon: CoinbaseWalletIcon,
+    description: 'Open in Coinbase Wallet app.',
+    href: 'https://go.cb-w.com/mtUDhEZPy1',
+    color: '#315CF5',
+    mobile: true,
+    mobileOnly: true,
+  },
+  SAFE: {
+    name: 'Gnosis Safe',
+    icon: GnosisSafeIcon,
+    description: 'Use the Gnosis Safe wallet to manage your auctions',
+    href: null,
+    color: '#3c8974',
+  },
   WALLET_CONNECT: {
     connector: walletconnect,
     name: 'WalletConnect',
@@ -65,14 +82,6 @@ const MAINNET_WALLETS = {
 // When the times comes.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EXTRA_WALLETS = {
-  WALLET_LINK: {
-    connector: walletlink,
-    name: 'Coinbase Wallet',
-    icon: CoinbaseWalletIcon,
-    description: 'Use Coinbase Wallet app on mobile device',
-    href: null,
-    color: '#315CF5',
-  },
   COINBASE_LINK: {
     name: 'Open in Coinbase Wallet',
     icon: CoinbaseWalletIcon,
@@ -100,6 +109,13 @@ const EXTRA_WALLETS = {
     color: '#4A6C9B',
     mobile: true,
   },
+}
+export const WALLET_ICONS = {
+  metaMask: MetamaskIcon,
+  injected: ArrowRightIcon,
+  walletConnect: WalletConnectIcon,
+  coinbaseWallet: CoinbaseWalletIcon,
+  safe: GnosisSafeIcon,
 }
 export const SUPPORTED_WALLETS = MAINNET_WALLETS
 

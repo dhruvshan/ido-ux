@@ -27,6 +27,8 @@ export const NETWORK_URL_XDAI =
 export const NETWORK_URL_MUMBAI =
   process.env.REACT_APP_NETWORK_URL_MUMBAI || 'https://rpc-mumbai.maticvigil.com/'
 
+export const INFURA_KEY = process.env.REACT_APP_INFURA_PROJECT_KEY || ''
+
 // Wallet connect keys
 export const FORTMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY || ''
 export const PORTIS_ID = process.env.REACT_APP_PORTIS_ID || ''

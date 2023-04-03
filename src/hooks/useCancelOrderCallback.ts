@@ -1,17 +1,17 @@
 import { useMemo } from 'react'
 
 import { BigNumber } from '@ethersproject/bignumber'
-import { Contract } from '@ethersproject/contracts'
 import { Fraction, Token } from '@josojo/honeyswap-sdk'
+import { prepareWriteContract, writeContract } from '@wagmi/core'
 
 import { decodeOrder } from './Order'
 import { useActiveWeb3React } from './index'
-import { useGasPrice } from './useGasPrice'
 import { chainNames } from '../constants'
+import EASY_AUCTION_ABI from '../constants/abis/easyAuction/easyAuction.json'
 import { AuctionIdentifier } from '../state/orderPlacement/reducer'
 import { useOrderActionHandlers } from '../state/orders/hooks'
 import { useTransactionAdder } from '../state/transactions/hooks'
-import { ChainId, calculateGasMargin, getEasyAuctionContract } from '../utils'
+import { getEasyAuctionAddress } from '../utils'
 import { getLogger } from '../utils/logger'
 import { abbreviation } from '../utils/numeral'
 
@@ -21,15 +21,14 @@ export function useCancelOrderCallback(
   auctionIdentifier: AuctionIdentifier,
   biddingToken: Token,
 ): null | ((orderId: string) => Promise<string>) {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const addTransaction = useTransactionAdder()
   const { onCancelOrder: actionCancelOrder } = useOrderActionHandlers()
   const { auctionId, chainId: orderChainId } = auctionIdentifier
-  const gasPrice = useGasPrice(chainId)
 
   return useMemo(() => {
     return async function onCancelOrder(orderId: string) {
-      if (!chainId || !library || !account) {
+      if (!chainId || !account) {
         throw new Error('missing dependencies in onCancelOrder callback')
       }
 
@@ -42,27 +41,15 @@ export function useCancelOrderCallback(
       }
 
       const decodedOrder = decodeOrder(orderId)
-      const easyAuctionContract: Contract = getEasyAuctionContract(
-        chainId as ChainId,
-        library,
-        account,
-      )
-      let estimate, method: Function, args: Array<number | string[]>, value: Maybe<BigNumber>
-      {
-        estimate = easyAuctionContract.estimateGas.cancelSellOrders
-        method = easyAuctionContract.cancelSellOrders
-        args = [auctionId, [orderId]]
-        value = null
-      }
 
-      return estimate(...args, value ? { value } : {})
-        .then((estimatedGasLimit) =>
-          method(...args, {
-            ...(value ? { value } : {}),
-            gasPrice,
-            gasLimit: calculateGasMargin(estimatedGasLimit),
-          }),
-        )
+      const config = await prepareWriteContract({
+        address: getEasyAuctionAddress(chainId || 1),
+        abi: EASY_AUCTION_ABI,
+        functionName: 'cancelSellOrders',
+        args: [auctionId, [orderId]],
+      })
+
+      return writeContract(config)
         .then((response) => {
           addTransaction(response, {
             summary:
@@ -87,11 +74,9 @@ export function useCancelOrderCallback(
     }
   }, [
     chainId,
-    library,
     account,
-    orderChainId,
     auctionId,
-    gasPrice,
+    orderChainId,
     addTransaction,
     biddingToken.decimals,
     biddingToken.symbol,

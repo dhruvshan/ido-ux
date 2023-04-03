@@ -1,3 +1,5 @@
+import { Signer } from 'ethers'
+
 import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { AddressZero } from '@ethersproject/constants'
@@ -8,17 +10,13 @@ import { JSBI, Percent, Token, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
 import { abi as IUniswapV2PairABI } from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { SiweMessage } from 'siwe'
 
+import { ChainId, NETWORK_CONFIGS } from './networkConfig'
 import easyAuctionABI from '../constants/abis/easyAuction/easyAuction.json'
 import ERC20_ABI from '../constants/abis/erc20.json'
 import ERC20_BYTES32_ABI from '../constants/abis/erc20_bytes32.json'
-import {
-  NETWORK_URL_GOERLI,
-  NETWORK_URL_MAINNET,
-  NETWORK_URL_MUMBAI,
-  NETWORK_URL_POLYGON,
-  NETWORK_URL_XDAI,
-} from '../constants/config'
 import { getLogger } from '../utils/logger'
+
+export { ChainId }
 
 const logger = getLogger('utils/index')
 
@@ -29,14 +27,6 @@ export function isAddress(value: any): string | false {
   } catch {
     return false
   }
-}
-
-export enum ChainId {
-  MAINNET = 1,
-  GÖRLI = 5,
-  XDAI = 100,
-  MATIC = 137,
-  MUMBAI = 80001,
 }
 
 export const EASY_AUCTION_NETWORKS: { [chainId in ChainId]: string } = {
@@ -55,51 +45,10 @@ export const DEPOSIT_AND_PLACE_ORDER: { [chainId in ChainId]: string } = {
   [ChainId.MUMBAI]: '0x7f49Ee20f2E83Ca53B08944938E9B6Fad8e3E3B6',
 }
 
-type NetworkConfig = {
-  name: string
-  rpc: string
-  symbol: string
-  explorer?: string
-  etherscan_prefix?: string
-}
-
-export const NETWORK_CONFIGS: { [chainId in ChainId]: NetworkConfig } = {
-  1: {
-    name: 'Mainnet',
-    symbol: 'ETH',
-    rpc: NETWORK_URL_MAINNET,
-    etherscan_prefix: '',
-  },
-  5: {
-    name: 'Goerli',
-    symbol: 'ETH',
-    rpc: NETWORK_URL_GOERLI,
-    etherscan_prefix: 'goerli.',
-  },
-  100: {
-    name: 'XDAI',
-    symbol: 'xDai',
-    rpc: NETWORK_URL_XDAI,
-    explorer: 'https://blockscout.com/xdai/mainnet',
-  },
-  137: {
-    name: 'Matic Mainnet',
-    symbol: 'MATIC',
-    rpc: NETWORK_URL_POLYGON,
-    explorer: 'https://polygonscan.com',
-  },
-  80001: {
-    name: 'Mumbai Testnet',
-    symbol: 'MATIC',
-    rpc: NETWORK_URL_MUMBAI,
-    explorer: 'https://mumbai.polygonscan.com',
-  },
-}
-
 const getExplorerPrefix = (chainId: ChainId) => {
   return (
-    NETWORK_CONFIGS[chainId].explorer ||
-    `https://${NETWORK_CONFIGS[chainId].etherscan_prefix || ''}etherscan.io`
+    NETWORK_CONFIGS[chainId].blockExplorers?.default.url ||
+    `https://${NETWORK_CONFIGS[chainId].blockExplorers?.default.url || ''}etherscan.io`
   )
 }
 
@@ -164,27 +113,26 @@ export function getProviderOrSigner(
 }
 
 // account is optional
-export function getContract(
-  address: string,
-  ABI: any,
-  library: Web3Provider,
-  account?: string,
-): Contract {
+export function getContract(address: string, ABI: any, provider: Provider): Contract {
   if (!isAddress(address) || address === AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
 
-  return new Contract(address, ABI, getProviderOrSigner(library, account) as Provider)
+  return new Contract(address, ABI, provider as Provider)
 }
 
 // account is optional
-export function getEasyAuctionContract(chainId: ChainId, library: Web3Provider, account?: string) {
-  return getContract(EASY_AUCTION_NETWORKS[chainId], easyAuctionABI, library, account)
+export function getEasyAuctionContract(chainId: ChainId, library: Provider) {
+  return getContract(EASY_AUCTION_NETWORKS[chainId], easyAuctionABI, library)
+}
+
+export function getEasyAuctionAddress(chainId: ChainId) {
+  return EASY_AUCTION_NETWORKS[chainId]
 }
 
 // account is optional
-export function getExchangeContract(pairAddress: string, library: Web3Provider, account?: string) {
-  return getContract(pairAddress, IUniswapV2PairABI, library, account)
+export function getExchangeContract(pairAddress: string, library: Provider) {
+  return getContract(pairAddress, IUniswapV2PairABI, library)
 }
 
 // get token info and fall back to unknown if not available, except for the
@@ -283,7 +231,7 @@ export interface AuthSig {
 }
 
 export async function generateAuthSig(
-  signer: JsonRpcSigner,
+  signer: Signer,
   chainId: number,
   auctionId: number,
 ): Promise<AuthSig> {
