@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { UnsupportedChainIdError } from '@web3-react/core'
 import { event } from 'react-ga'
-import { Connector, useAccount, useConnect } from 'wagmi'
+import { Connector, useAccount, useConnect, useNetwork } from 'wagmi'
 
 import { injected } from '../../../connectors'
 import { WALLET_ICONS } from '../../../constants'
@@ -80,6 +79,8 @@ const WALLET_VIEWS = {
 const WalletModal: React.FC = () => {
   const { connect, connectors, error } = useConnect()
   const { address: account, connector, isConnected: active } = useAccount()
+  const { chain } = useNetwork()
+  const unsupported = chain.unsupported || false
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
   const [pendingWallet, setPendingWallet] = useState<Connector>()
   const [pendingError, setPendingError] = useState<boolean>()
@@ -146,12 +147,7 @@ const WalletModal: React.FC = () => {
         await connect({ connector })
       }
     } catch (error) {
-      if (error instanceof UnsupportedChainIdError) {
-        // a little janky...can't use setError because the connector isn't set
-        connect({ connector })
-      } else {
-        setPendingError(true)
-      }
+      setPendingError(true)
     }
   }
 
@@ -185,8 +181,7 @@ const WalletModal: React.FC = () => {
     })
   }
 
-  const networkError =
-    error instanceof UnsupportedChainIdError || errorWrongNetwork || walletConnectChainError
+  const networkError = unsupported || errorWrongNetwork || walletConnectChainError
   const viewAccountTransactions = account && walletView === WALLET_VIEWS.ACCOUNT
   const connectingToWallet = walletView === WALLET_VIEWS.PENDING
   const title =
@@ -198,7 +193,7 @@ const WalletModal: React.FC = () => {
       ? 'Error connecting'
       : 'Connect a wallet'
   const errorMessage =
-    error instanceof UnsupportedChainIdError || walletConnectChainError
+    unsupported || walletConnectChainError
       ? 'Please connect to the appropriate Ethereum network.'
       : errorWrongNetwork
       ? errorWrongNetwork

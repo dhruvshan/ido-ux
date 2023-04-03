@@ -1,8 +1,5 @@
 import { WalletConnectConnector } from '@anxolin/walletconnect-connector'
-// import { InjectedConnector } from '@web3-react/injected-connector'
-import { NetworkConnector } from '@web3-react/network-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
-import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { configureChains, createClient } from 'wagmi'
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { InjectedConnector } from 'wagmi/connectors/injected'
@@ -21,7 +18,7 @@ import {
   polygon,
   polygonMumbai,
 } from './../utils/networkConfig'
-import { INFURA_KEY, NETWORK_URL_MAINNET, PORTIS_ID } from '../constants/config'
+import { INFURA_KEY, PORTIS_ID } from '../constants/config'
 
 const { chains, provider } = configureChains(
   [gnosis, goerli, mainnet, polygon, polygonMumbai],
@@ -79,11 +76,6 @@ chainIds.forEach((chainId: ChainId) => {
   }
 })
 
-// TODO Throw error if no defaultChainId is found
-const defaultChainId = urls.findIndex((chainId) => !!chainId)
-
-export const network = new NetworkConnector({ urls, defaultChainId })
-
 export const walletconnect = {
   1: new WalletConnectConnector({
     rpc: { 1: `${NETWORK_CONFIGS[1].rpcUrls.default.http}` },
@@ -124,12 +116,4 @@ export const walletconnect = {
 export const portis = new PortisConnector({
   dAppId: PORTIS_ID,
   networks: [1],
-})
-
-// mainnet only
-export const walletlink = new WalletLinkConnector({
-  url: NETWORK_URL_MAINNET,
-  appName: 'GnosisAuction',
-  appLogoUrl:
-    'https://mpng.pngfly.com/20181202/bex/kisspng-emoji-domain-unicorn-pin-badges-sticker-unicorn-tumblr-emoji-unicorn-iphoneemoji-5c046729264a77.5671679315437924251569.jpg',
 })

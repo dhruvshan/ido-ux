@@ -7,7 +7,7 @@ import MetamaskIcon from '../assets/images/metamask.svg'
 import PortisIcon from '../assets/images/portisIcon.png'
 import TrustWalletIcon from '../assets/images/trustWallet.png'
 import WalletConnectIcon from '../assets/images/wallet-connect.svg'
-import { injected, portis, walletconnect, walletlink } from '../connectors'
+import { injected, portis, walletconnect } from '../connectors'
 
 export const chainNames = {
   1: 'Mainnet',
@@ -82,14 +82,6 @@ const MAINNET_WALLETS = {
 // When the times comes.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EXTRA_WALLETS = {
-  WALLET_LINK: {
-    connector: walletlink,
-    name: 'Coinbase Wallet',
-    icon: CoinbaseWalletIcon,
-    description: 'Use Coinbase Wallet app on mobile device',
-    href: null,
-    color: '#315CF5',
-  },
   COINBASE_LINK: {
     name: 'Open in Coinbase Wallet',
     icon: CoinbaseWalletIcon,
