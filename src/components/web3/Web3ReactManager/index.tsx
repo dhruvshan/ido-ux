@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-import { useWeb3React } from '@web3-react/core'
 import { useTranslation } from 'react-i18next'
+import { useAccount, useConnect } from 'wagmi'
 
 import { tokenLogosServiceApi } from '../../../api'
-import { network } from '../../../connectors'
-import { NetworkContextName } from '../../../constants'
 import { useActiveListener, useEagerConnect, useInactiveListener } from '../../../hooks'
 import { useTokenListActionHandlers } from '../../../state/tokenList/hooks'
 import { getLogger } from '../../../utils/logger'
@@ -27,22 +25,12 @@ const Message = styled.h2`
 
 export default function Web3ReactManager({ children }) {
   const { t } = useTranslation()
-  const {
-    activate: activateNetwork,
-    active: networkActive,
-    error: networkError,
-  } = useWeb3React(NetworkContextName)
+  const { isConnected: networkActive } = useAccount()
+  const { error: networkError } = useConnect()
   const { onLoadTokenList } = useTokenListActionHandlers()
 
   // try to eagerly connect to an injected provider, if it exists and has granted access already
   const triedEager = useEagerConnect()
-
-  // after eagerly trying injected, if the network connect ever isn't active or in an error state, activate itd
-  useEffect(() => {
-    if (triedEager && !networkActive && !networkError) {
-      activateNetwork(network)
-    }
-  }, [triedEager, networkActive, networkError, activateNetwork])
 
   // when there's no account connected, react to logins (broadly speaking) on the injected provider, if it exists
   useInactiveListener(!triedEager)

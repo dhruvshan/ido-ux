@@ -3,13 +3,13 @@ import { useMemo } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { JSBI, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
+import { useEnsName, useSigner } from 'wagmi'
 
 import { useActiveWeb3React } from './index'
 import { useTokenContract } from './useContract'
-import useENSName from './useENSName'
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { useTokenBalanceTreatingWETHasETHonXDAI } from '../state/wallet/hooks'
-import { ChainId, calculateGasMargin, getSigner, isAddress } from '../utils'
+import { ChainId, calculateGasMargin, isAddress } from '../utils'
 import { getLogger } from '../utils/logger'
 import { abbreviation } from '../utils/numeral'
 
@@ -21,9 +21,10 @@ export function useSendCallback(
   amount?: TokenAmount,
   recipient?: string,
 ): null | (() => Promise<string>) {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { data: signer } = useSigner()
   const addTransaction = useTransactionAdder()
-  const ensName = useENSName(recipient)
+  const { data: ensName } = useEnsName({ address: recipient })
   const tokenContract = useTokenContract(amount?.token?.address)
   const balance = useTokenBalanceTreatingWETHasETHonXDAI(account ?? undefined, amount?.token)
 
@@ -37,11 +38,11 @@ export function useSendCallback(
     const token = amount?.token
 
     return async function onSend(): Promise<string> {
-      if (!chainId || !library || !account || !tokenContract) {
+      if (!chainId || !account || !tokenContract || !signer) {
         throw new Error('missing dependencies in onSend callback')
       }
       if (token.equals(WETH[chainId as ChainId])) {
-        return getSigner(library, account)
+        return signer
           .sendTransaction({
             to: recipient,
             value: BigNumber.from(amount.raw.toString()),
@@ -89,15 +90,5 @@ export function useSendCallback(
           })
       }
     }
-  }, [
-    addTransaction,
-    library,
-    account,
-    chainId,
-    amount,
-    ensName,
-    recipient,
-    tokenContract,
-    balance,
-  ])
+  }, [addTransaction, signer, account, chainId, amount, ensName, recipient, tokenContract, balance])
 }

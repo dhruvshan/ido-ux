@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useActiveWeb3React } from '.'
 import { additionalServiceApi } from '../api'
 import { AuctionIdentifier } from '../state/orderPlacement/reducer'
-import { generateAuthSig, getSigner } from '../utils'
+import { generateAuthSig } from '../utils'
 import lit, { getChainName } from '../utils/lit'
 import { getLogger } from '../utils/logger'
 
@@ -16,13 +16,13 @@ export const useSignature = (
   signature: Maybe<string>
 } => {
   const { auctionId, chainId } = auctionIdentifier
-  const { library } = useActiveWeb3React()
+  const { signer } = useActiveWeb3React()
   const [signature, setSignature] = useState<Maybe<string>>(null)
 
   useEffect(() => {
     let cancelled = false
     const fetchApiData = async () => {
-      if (!chainId || !auctionId || !account || !library) {
+      if (!chainId || !auctionId || !account || !signer) {
         return
       }
       const params = {
@@ -39,7 +39,6 @@ export const useSignature = (
           return
         }
 
-        const signer = await getSigner(library, account).connectUnchecked()
         const authSig = await generateAuthSig(signer, chainId, auctionId)
         const { encryptedString, encryptedSymmetricKey } = signature
         const accessControlConditions = [
@@ -76,7 +75,7 @@ export const useSignature = (
     return (): void => {
       cancelled = true
     }
-  }, [account, setSignature, auctionId, chainId, library])
+  }, [account, setSignature, auctionId, chainId, signer])
 
   return { signature }
 }

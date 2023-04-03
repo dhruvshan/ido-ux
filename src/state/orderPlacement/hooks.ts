@@ -5,6 +5,7 @@ import { Contract } from '@ethersproject/contracts'
 import { parseUnits } from '@ethersproject/units'
 import { Fraction, JSBI, Token, TokenAmount } from '@josojo/honeyswap-sdk'
 import { useDispatch, useSelector } from 'react-redux'
+import { useContract, useContractRead } from 'wagmi'
 
 import {
   invertPrice,
@@ -22,14 +23,12 @@ import { Order, decodeOrder } from '../../hooks/Order'
 import { useTokenByAddressAndAutomaticallyAdd } from '../../hooks/Tokens'
 import { AuctionInfoDetail, useAuctionDetails } from '../../hooks/useAuctionDetails'
 import { ClaimState } from '../../hooks/useClaimOrderCallback'
-import { useContract } from '../../hooks/useContract'
 import { useClearingPriceInfo } from '../../hooks/useCurrentClearingOrderAndVolumeCallback'
 import { ChainId, EASY_AUCTION_NETWORKS, getFullTokenDisplay, isTimeout } from '../../utils'
 import { getLogger } from '../../utils/logger'
 import { convertPriceIntoBuyAndSellAmount, getInverse } from '../../utils/prices'
 import { calculateTimeLeft } from '../../utils/tools'
 import { AppDispatch, AppState } from '../index'
-import { useSingleCallResult } from '../multicall/hooks'
 import { resetUserPrice, resetUserVolume } from '../orderbook/actions'
 import { useOrderActionHandlers } from '../orders/hooks'
 import { OrderDisplay, OrderStatus } from '../orders/reducer'
@@ -40,6 +39,13 @@ const logger = getLogger('orderPlacement/hooks')
 export interface SellOrder {
   sellAmount: TokenAmount
   buyAmount: TokenAmount
+}
+
+export interface AuctionDataResult {
+  auctioningToken: string
+  biddingToken: string
+  clearingPriceOrder: string
+  auctionEndDate: number
 }
 
 export enum AuctionState {
@@ -589,16 +595,22 @@ export function useOnChainAuctionData(auctionIdentifier: AuctionIdentifier): {
 } {
   const { auctionId, chainId } = auctionIdentifier
 
-  const easyAuctionInstance: Maybe<Contract> = useContract(
-    EASY_AUCTION_NETWORKS[chainId as ChainId],
-    easyAuctionABI,
-  )
+  const easyAuctionInstance: Maybe<Contract> = useContract({
+    address: EASY_AUCTION_NETWORKS[chainId as ChainId],
+    abi: easyAuctionABI,
+  })
 
-  const { loading: isLoadingAuctionInfo, result: auctionInfo } = useSingleCallResult(
-    easyAuctionInstance,
+  const { data: auctionInfo, isLoading: isLoadingAuctionInfo } = useContractRead<
+    typeof easyAuctionABI,
     'auctionData',
-    [auctionId],
-  )
+    AuctionDataResult
+  >({
+    address: easyAuctionInstance?.address,
+    abi: easyAuctionABI,
+    functionName: 'auctionData',
+    args: [auctionId],
+  })
+
   const auctioningTokenAddress: string | undefined = auctionInfo?.auctioningToken.toString()
 
   const biddingTokenAddress: string | undefined = auctionInfo?.biddingToken.toString()

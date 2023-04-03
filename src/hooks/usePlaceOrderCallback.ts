@@ -1,16 +1,15 @@
 import { useMemo } from 'react'
 
 import { BigNumber } from '@ethersproject/bignumber'
-import { Contract, ContractFunction } from '@ethersproject/contracts'
-import { Web3Provider } from '@ethersproject/providers'
 import { Token } from '@josojo/honeyswap-sdk'
+import { prepareWriteContract, writeContract } from '@wagmi/core'
 
 import { encodeOrder } from './Order'
 import { useActiveWeb3React } from './index'
-import { useGasPrice } from './useGasPrice'
 import { useGetUserId } from './useGetUserId'
 import { additionalServiceApi } from '../api'
-import depositAndPlaceOrderABI from '../constants/abis/easyAuction/depositAndPlaceOrder.json'
+import DEPOSIT_AND_PLACE_ORDER_ABI from '../constants/abis/easyAuction/depositAndPlaceOrder.json'
+import EASY_AUCTION_ABI from '../constants/abis/easyAuction/easyAuction.json'
 import { NUMBER_OF_DIGITS_FOR_INVERSION } from '../constants/config'
 import { useOrderPlacementState } from '../state/orderPlacement/hooks'
 import { AuctionIdentifier } from '../state/orderPlacement/reducer'
@@ -21,9 +20,7 @@ import { useTransactionAdder } from '../state/transactions/hooks'
 import {
   ChainId,
   DEPOSIT_AND_PLACE_ORDER,
-  calculateGasMargin,
-  getContract,
-  getEasyAuctionContract,
+  getEasyAuctionAddress,
   getTokenDisplay,
   isTokenWETH,
   isTokenWMATIC,
@@ -39,12 +36,6 @@ export const queueStartElement =
   '0x0000000000000000000000000000000000000000000000000000000000000001'
 export const queueLastElement = '0xffffffffffffffffffffffffffffffffffffffff000000000000000000000001'
 
-type EstimateAndParams = {
-  estimate: ContractFunction<BigNumber>
-  method: Function
-  args: [number, [string], [string], string] | [number, [string], [string], [string], string]
-  value: Maybe<BigNumber>
-}
 // returns a function that will place an order, if the parameters are all valid
 // and the user has approved the transfer of tokens
 export function usePlaceOrderCallback(
@@ -57,11 +48,12 @@ export function usePlaceOrderCallback(
   const { account, chainId, library } = useActiveWeb3React()
   const { auctionId } = auctionIdentifer
 
+  const isXdaiWethOrMatic = getIsXdaiWethOrWmatic(biddingToken, chainId)
+
   const addTransaction = useTransactionAdder()
   const { onNewOrder } = useOrderActionHandlers()
   const { price: priceFromSwapState, sellAmount } = useOrderPlacementState()
   const { onNewBid } = useOrderbookActionHandlers()
-  const gasPrice = useGasPrice(chainId)
 
   const price = (
     isPriceInverted
@@ -107,27 +99,26 @@ export function usePlaceOrderCallback(
 
       const auctioningTokenDisplay = getTokenDisplay(auctioningToken, chainId)
       const biddingTokenDisplay = getTokenDisplay(biddingToken, chainId)
+      const args = isXdaiWethOrMatic
+        ? [auctionId, [buyAmountScaled.toString()], [previousOrder], signature ? signature : '0x']
+        : [
+            auctionId,
+            [buyAmountScaled.toString()],
+            [sellAmountScaled.toString()],
+            [previousOrder],
+            signature ? signature : '0x',
+          ]
 
-      const { args, estimate, method, value } = getEstimateParams(
-        biddingToken,
-        chainId,
-        library,
-        account,
-        buyAmountScaled,
-        sellAmountScaled,
-        previousOrder,
-        auctionId,
-        signature,
-      )
+      const config = await prepareWriteContract({
+        address: isXdaiWethOrMatic
+          ? DEPOSIT_AND_PLACE_ORDER[chainId]
+          : getEasyAuctionAddress(chainId),
+        abi: isXdaiWethOrMatic ? DEPOSIT_AND_PLACE_ORDER_ABI : EASY_AUCTION_ABI,
+        functionName: isXdaiWethOrMatic ? 'depositAndPlaceOrder' : 'placeSellOrders',
+        args,
+      })
 
-      return estimate(...args, value ? { value } : {})
-        .then((estimatedGasLimit) =>
-          method(...args, {
-            ...(value ? { value } : {}),
-            gasPrice,
-            gasLimit: calculateGasMargin(estimatedGasLimit),
-          }),
-        )
+      return writeContract(config)
         .then((response) => {
           addTransaction(response, {
             summary:
@@ -161,18 +152,18 @@ export function usePlaceOrderCallback(
           return response.hash
         })
         .catch((error) => {
-          logger.error(`Swap or gas estimate failed`, error)
+          logger.error('Error writing transaction', error)
           throw error
         })
     }
   }, [
+    isXdaiWethOrMatic,
     account,
     addTransaction,
     auctionId,
     auctioningToken,
     biddingToken,
     chainId,
-    gasPrice,
     library,
     onNewBid,
     onNewOrder,
@@ -183,52 +174,14 @@ export function usePlaceOrderCallback(
   ])
 }
 
-const getEstimateParams = (
+export const getIsXdaiWethOrWmatic = (
   biddingToken: Token,
-  chainId: ChainId,
-  library: Web3Provider,
-  account: string,
-  buyAmountScaled: BigNumber,
-  sellAmountScaled: BigNumber,
-  previousOrder: string,
-  auctionId: number,
-  signature: string,
-): EstimateAndParams => {
-  const easyAuctionContract: Contract = getEasyAuctionContract(chainId, library, account)
-  if (
+  chainId: ChainId | undefined,
+): boolean => {
+  if (!chainId) return false
+  return (
     isTokenXDAI(biddingToken.address, chainId) ||
     isTokenWETH(biddingToken.address, chainId) ||
     isTokenWMATIC(biddingToken.address, chainId)
-  ) {
-    const depositAndPlaceOrderContract = getContract(
-      DEPOSIT_AND_PLACE_ORDER[chainId],
-      depositAndPlaceOrderABI,
-      library,
-      account,
-    )
-
-    return {
-      estimate: depositAndPlaceOrderContract.estimateGas.depositAndPlaceOrder,
-      method: depositAndPlaceOrderContract.depositAndPlaceOrder,
-      args: [
-        auctionId,
-        [buyAmountScaled.toString()],
-        [previousOrder],
-        signature ? signature : '0x',
-      ],
-      value: sellAmountScaled,
-    }
-  }
-  return {
-    estimate: easyAuctionContract.estimateGas.placeSellOrders,
-    method: easyAuctionContract.placeSellOrders,
-    args: [
-      auctionId,
-      [buyAmountScaled.toString()],
-      [sellAmountScaled.toString()],
-      [previousOrder],
-      signature ? signature : '0x',
-    ],
-    value: null,
-  }
+  )
 }

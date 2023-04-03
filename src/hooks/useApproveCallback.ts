@@ -1,15 +1,14 @@
 import { useCallback, useMemo } from 'react'
 
-import { MaxUint256 } from '@ethersproject/constants'
-import { TransactionResponse } from '@ethersproject/providers'
 import { TokenAmount } from '@josojo/honeyswap-sdk'
+import { SendTransactionResult } from '@wagmi/core'
+import { useContractWrite, usePrepareContractWrite } from 'wagmi'
 
 import { useActiveWeb3React } from './index'
-import { useTokenContract } from './useContract'
-import { useGasPrice } from './useGasPrice'
+import ERC20_ABI from '../constants/abis/erc20.json'
 import { useTokenAllowance } from '../data/Allowances'
 import { useHasPendingApproval, useTransactionAdder } from '../state/transactions/hooks'
-import { ChainId, calculateGasMargin, isTokenWETH, isTokenWMATIC, isTokenXDAI } from '../utils'
+import { ChainId, isTokenWETH, isTokenWMATIC, isTokenXDAI } from '../utils'
 import { getLogger } from '../utils/logger'
 
 const logger = getLogger('useApproveCallback')
@@ -28,14 +27,17 @@ export function useApproveCallback(
   chainId?: ChainId,
 ): [ApprovalState, () => Promise<void>] {
   const { account } = useActiveWeb3React()
-  const gasPrice = useGasPrice(chainId)
 
-  const currentAllowance = useTokenAllowance(
-    amountToApprove?.token,
-    account ?? undefined,
-    addressToApprove,
-  )
+  const currentAllowance = useTokenAllowance(amountToApprove?.token, account, addressToApprove)
   const pendingApproval = useHasPendingApproval(amountToApprove?.token?.address, addressToApprove)
+
+  const { config } = usePrepareContractWrite({
+    address: amountToApprove?.token?.address,
+    abi: ERC20_ABI,
+    functionName: 'approve',
+    args: [addressToApprove, amountToApprove?.raw.toString()],
+  })
+  const { writeAsync } = useContractWrite(config)
 
   // check the current approval status
   const approval = useMemo(() => {
@@ -58,7 +60,6 @@ export function useApproveCallback(
       : ApprovalState.APPROVED
   }, [amountToApprove, currentAllowance, pendingApproval, chainId])
 
-  const tokenContract = useTokenContract(amountToApprove?.token?.address)
   const addTransaction = useTransactionAdder()
 
   const approve = useCallback(async (): Promise<void> => {
@@ -67,7 +68,7 @@ export function useApproveCallback(
       return
     }
 
-    if (!tokenContract) {
+    if (!writeAsync) {
       logger.error('tokenContract is null')
       return
     }
@@ -77,21 +78,13 @@ export function useApproveCallback(
       return
     }
 
-    let useExact = false
-    const estimatedGas = await tokenContract.estimateGas
-      .approve(addressToApprove, MaxUint256)
-      .catch(() => {
-        // general fallback for tokens who restrict approval amounts
-        useExact = true
-        return tokenContract.estimateGas.approve(addressToApprove, amountToApprove.raw.toString())
-      })
+    if (!addressToApprove) {
+      logger.error('missing address to approve')
+      return
+    }
 
-    return tokenContract
-      .approve(addressToApprove, useExact ? amountToApprove.raw.toString() : MaxUint256, {
-        gasPrice,
-        gasLimit: calculateGasMargin(estimatedGas),
-      })
-      .then((response: TransactionResponse) => {
+    return writeAsync()
+      .then((response: SendTransactionResult) => {
         addTransaction(response, {
           summary: 'Approve ' + amountToApprove?.token?.symbol,
           approval: { tokenAddress: amountToApprove.token.address, spender: addressToApprove },
@@ -101,7 +94,7 @@ export function useApproveCallback(
         logger.debug('Failed to approve token', error)
         throw error
       })
-  }, [approval, gasPrice, tokenContract, addressToApprove, amountToApprove, addTransaction])
+  }, [approval, addressToApprove, amountToApprove, addTransaction, writeAsync])
 
   return [approval, approve]
 }

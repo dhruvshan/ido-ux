@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { AbstractConnector } from '@web3-react/abstract-connector'
+import { Connector } from 'wagmi'
 
 import { Button } from '../../../buttons/Button'
 import { InlineLoading } from '../../../common/InlineLoading'
@@ -21,10 +21,10 @@ const ActionButton = styled(Button)`
 `
 
 interface Props {
-  connector?: AbstractConnector
+  connector?: Connector
   error?: boolean
   setPendingError: (error: boolean) => void
-  tryActivation: (connector: AbstractConnector) => void
+  tryActivation: (connector: Connector) => void
 }
 
 const PendingView: React.FC<Props> = (props) => {

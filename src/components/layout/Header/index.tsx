@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { useWeb3React } from '@web3-react/core'
 import { HashLink } from 'react-router-hash-link'
+import { useAccount, useConnect } from 'wagmi'
 
 import { injected } from '../../../connectors'
 import { chainNames } from '../../../constants'
@@ -120,10 +120,10 @@ const ErrorText = styled.span`
 
 export const Component: React.FC<RouteComponentProps> = (props) => {
   const { location, ...restProps } = props
-  const { account, activate } = useWeb3React()
+  const { connect } = useConnect()
+  const { isConnected } = useAccount()
   const { chainId } = useOrderPlacementState()
   const { errorWrongNetwork } = useNetworkCheck()
-  const isConnected = !!account
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
   const toggleWalletModal = useWalletModalToggle()
 
@@ -153,11 +153,11 @@ export const Component: React.FC<RouteComponentProps> = (props) => {
       const previouslyUsedWalletConnect = localStorage.getItem('walletconnect')
       if (!previouslyUsedWalletConnect && chainMismatch && chainId == 100) {
         await setupNetwork(chainId)
-        activate(injected, undefined, true)
+        connect({ connector: injected })
       }
     }
     trySwitchingNetworks()
-  }, [chainMismatch, activate, chainId])
+  }, [chainMismatch, connect, chainId])
 
   return (
     <>

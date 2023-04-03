@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react'
 
 import { JSBI, Pair, Token, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
+import { fetchToken } from '@wagmi/core'
 import flatMap from 'lodash.flatmap'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 
@@ -15,7 +16,7 @@ import {
 } from './actions'
 import { useActiveWeb3React } from '../../hooks'
 import { useAllTokens } from '../../hooks/Tokens'
-import { ChainId, getTokenInfoWithFallback, isAddress } from '../../utils'
+import { ChainId, isAddress } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 
 function serializeToken(token: Token): SerializedToken {
@@ -72,7 +73,7 @@ export function useFetchTokenByAddress(): (address: string) => Promise<Maybe<Tok
       if (!library || !chainId) return null
       const validatedAddress = isAddress(address)
       if (!validatedAddress) return null
-      const { decimals, name, symbol } = await getTokenInfoWithFallback(validatedAddress, library)
+      const { decimals, name, symbol } = await fetchToken({ address: validatedAddress })
 
       if (decimals === null) {
         return null
