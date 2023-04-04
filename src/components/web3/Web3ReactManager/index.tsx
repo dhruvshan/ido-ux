@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import { useTranslation } from 'react-i18next'
-import { useAccount, useConnect } from 'wagmi'
+import { useConnect } from 'wagmi'
 
 import { tokenLogosServiceApi } from '../../../api'
 import { useActiveListener, useEagerConnect, useInactiveListener } from '../../../hooks'
@@ -25,7 +25,7 @@ const Message = styled.h2`
 
 export default function Web3ReactManager({ children }) {
   const { t } = useTranslation()
-  const { isConnected: networkActive } = useAccount()
+  // const { isConnected: networkActive } = useAccount()
   const { error: networkError } = useConnect()
   const { onLoadTokenList } = useTokenListActionHandlers()
 
@@ -72,12 +72,12 @@ export default function Web3ReactManager({ children }) {
     return null
   }
 
-  if (showLoader || !networkActive) {
+  if (showLoader) {
     return <InlineLoading />
   }
 
   // if the account context isn't active, and there's an error on the network context, it's an irrecoverable error
-  if (!networkActive && networkError) {
+  if (networkError) {
     return (
       <MessageWrapper>
         <Message>{t('unknownError')}</Message>
