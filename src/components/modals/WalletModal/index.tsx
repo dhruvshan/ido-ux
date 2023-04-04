@@ -80,7 +80,7 @@ const WalletModal: React.FC = () => {
   const { connect, connectors, error } = useConnect()
   const { address: account, connector, isConnected: active } = useAccount()
   const { chain } = useNetwork()
-  const unsupported = chain.unsupported || false
+  const unsupported = chain?.unsupported || false
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
   const [pendingWallet, setPendingWallet] = useState<Connector>()
   const [pendingError, setPendingError] = useState<boolean>()
