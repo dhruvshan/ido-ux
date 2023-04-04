@@ -32,10 +32,12 @@ import { Order, encodeOrder } from '../hooks/Order'
 import { AuctionInfo } from '../hooks/useAllAuctionInfos'
 import { AuctionInfoDetail } from '../hooks/useAuctionDetails'
 import { queueStartElement } from '../hooks/usePlaceOrderCallback'
-import { EncryptedString } from '../utils/lit'
 import { getLogger } from '../utils/logger'
 
 const logger = getLogger('AdditionalServicesApi')
+export type Signature = {
+  signature: string
+}
 
 export interface AdditionalServicesApi {
   getOrderBookDisplayQuery(): DocumentNode
@@ -57,7 +59,7 @@ export interface AdditionalServicesApi {
   getClearingPriceOrderAndVolume(params: OrderBookParams): Promise<ClearingPriceAndVolumeData>
   getAuctionDetailQuery(): DocumentNode
   getAuctionDetails(params: AuctionDetailParams): Promise<AuctionInfoDetail>
-  getSignature(params: GetSignatureParams): Promise<EncryptedString | string>
+  getSignature(params: GetSignatureParams): Promise<Signature | string>
   getSignatureUrl(params: GetSignatureParams): string
   getUserIdQuery(): DocumentNode
   getUserId(params: GetUserIdParams): Promise<string>
@@ -612,7 +614,7 @@ export class AdditionalServicesApiImpl implements AdditionalServicesApi {
     return `${baseUrl}data/pinList?status=pinned&metadata[name]=${networkId}-${auctionId}-${address}`
   }
 
-  public async getSignature(params: GetSignatureParams): Promise<EncryptedString | string> {
+  public async getSignature(params: GetSignatureParams): Promise<Signature | string> {
     try {
       const url = await this.getSignatureUrl(params)
 
