@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react'
 import { useActiveWeb3React } from '.'
 import { additionalServiceApi } from '../api'
 import { AuctionIdentifier } from '../state/orderPlacement/reducer'
-import { generateAuthSig } from '../utils'
-import lit, { getChainName } from '../utils/lit'
 import { getLogger } from '../utils/logger'
 
 const logger = getLogger('useSignature')
@@ -39,31 +37,10 @@ export const useSignature = (
           return
         }
 
-        const authSig = await generateAuthSig(signer, chainId, auctionId)
-        const { encryptedString, encryptedSymmetricKey } = signature
-        const accessControlConditions = [
-          {
-            conditionType: 'evmBasic',
-            contractAddress: '',
-            standardContractType: '',
-            chain: getChainName(params.networkId),
-            method: '',
-            parameters: [':userAddress'],
-            returnValueTest: {
-              comparator: '=',
-              value: account,
-            },
-          },
-        ]
-        const decryptSignature = await lit.decryptString(
-          { encryptedString, encryptedSymmetricKey },
-          accessControlConditions,
-          getChainName(params.networkId),
-          authSig,
-        )
+        const { signature: auctioneersSignature } = signature
 
         if (cancelled) return
-        setSignature(decryptSignature)
+        setSignature(auctioneersSignature)
       } catch (error) {
         if (!cancelled) return
         setSignature(null)
