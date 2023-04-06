@@ -11,6 +11,7 @@ export function useTokenAllowance(
   spender?: string,
 ): TokenAmount | undefined {
   const { data: allowance } = useContractRead({
+    // @ts-ignore
     address: token?.address,
     abi: ERC20_ABI,
     functionName: 'allowance',

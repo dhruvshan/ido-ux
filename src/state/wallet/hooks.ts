@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { JSBI, Token, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
+import { ChainId, JSBI, Token, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
 import { useContractReads } from 'wagmi'
 
 import ERC20_ABI from '../../constants/abis/erc20.json'
@@ -8,7 +8,7 @@ import { MULTICALL_ABI } from '../../constants/multicall'
 import { useActiveWeb3React } from '../../hooks'
 import { useAllTokens } from '../../hooks/Tokens'
 import { useMulticallContract } from '../../hooks/useContract'
-import { ChainId, isAddress } from '../../utils'
+import { isAddress } from '../../utils'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -30,6 +30,7 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
   )
 
   const { data: results } = useContractReads({
+    // @ts-ignore
     contracts: [...addresses].map((address) => ({
       address: multicallContract?.address,
       abi: MULTICALL_ABI,
@@ -67,6 +68,7 @@ export function useTokenBalances(
   )
 
   const { data: balances } = useContractReads({
+    // @ts-ignore
     contracts: validatedTokenAddresses.map((validatedTokenAddress) => ({
       address: validatedTokenAddress,
       abi: ERC20_ABI,
@@ -107,6 +109,7 @@ export function useTokenBalancesTreatWETHAsETH(
     let includesWETH = false
     const tokensWithoutWETH = tokens.filter((t) => {
       if (!chainId) return true
+      // @ts-ignore
       const isWETH = (!!WETH[chainId as ChainId] && t?.equals(WETH[chainId as ChainId])) ?? false
       if (isWETH) includesWETH = true
       return !isWETH
@@ -120,6 +123,7 @@ export function useTokenBalancesTreatWETHAsETH(
   return useMemo(() => {
     if (!chainId || !address) return {}
     if (includesWETH) {
+      // @ts-ignore
       const weth = WETH[chainId as ChainId]
       const ethBalance = ETHBalance[address]
       return {

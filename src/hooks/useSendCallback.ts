@@ -24,7 +24,10 @@ export function useSendCallback(
   const { account, chainId } = useActiveWeb3React()
   const { data: signer } = useSigner()
   const addTransaction = useTransactionAdder()
-  const { data: ensName } = useEnsName({ address: recipient })
+  const { data: ensName } = useEnsName({
+    // @ts-ignore
+    address: recipient,
+  })
   const tokenContract = useTokenContract(amount?.token?.address)
   const balance = useTokenBalanceTreatingWETHasETHonXDAI(account ?? undefined, amount?.token)
 

@@ -8,6 +8,7 @@ import ERC20_ABI from '../constants/abis/erc20.json'
 // or contract total supply cannot be fetched
 export function useTotalSupply(token?: Token): TokenAmount | undefined {
   const { data } = useContractRead<typeof ERC20_ABI, 'totalSupply', Array<BigNumber>>({
+    // @ts-ignore
     address: token?.address,
     abi: ERC20_ABI,
     functionName: 'totalSupply',

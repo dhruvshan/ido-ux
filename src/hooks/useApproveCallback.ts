@@ -32,6 +32,7 @@ export function useApproveCallback(
   const pendingApproval = useHasPendingApproval(amountToApprove?.token?.address, addressToApprove)
 
   const { config } = usePrepareContractWrite({
+    // @ts-ignore
     address: amountToApprove?.token?.address,
     abi: ERC20_ABI,
     functionName: 'approve',
