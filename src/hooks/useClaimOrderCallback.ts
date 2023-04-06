@@ -251,6 +251,7 @@ export const useClaimOrderCallback = (
   const { claimInfo, error } = useGetClaimInfo(auctionIdentifier)
 
   const { config } = usePrepareContractWrite({
+    // @ts-ignore
     address: getEasyAuctionAddress(chainId as ChainId),
     abi: EASY_AUCTION_ABI,
     functionName: 'claimFromParticipantOrder',
@@ -294,6 +295,7 @@ export function useGetClaimState(
   }, [auctionId, chainId, account])
 
   const { data: hasAvailableClaim } = useContractRead({
+    // @ts-ignore
     address: getEasyAuctionAddress(chainId as ChainId),
     abi: EASY_AUCTION_ABI,
     enabled: !!account || !!claimableOrders || !!claimableOrders?.length,

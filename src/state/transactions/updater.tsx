@@ -33,7 +33,10 @@ export default function Updater() {
     Object.keys(allTransactions)
       .filter((hash) => !allTransactions[hash].receipt)
       .forEach((hash) => {
-        fetchTransaction({ hash })
+        fetchTransaction({
+          // @ts-ignore
+          hash,
+        })
           .then((transactionResponse) => {
             transactionResponse.wait(1).then((receipt) => {
               if (receipt) {
