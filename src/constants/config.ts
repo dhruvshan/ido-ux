@@ -28,6 +28,7 @@ export const NETWORK_URL_MUMBAI =
   process.env.REACT_APP_NETWORK_URL_MUMBAI || 'https://rpc-mumbai.maticvigil.com/'
 
 export const INFURA_KEY = process.env.REACT_APP_INFURA_PROJECT_KEY || ''
+export const WALLET_CONNECT_PROJECT_ID = process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID || ''
 
 // Wallet connect keys
 export const FORTMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY || ''

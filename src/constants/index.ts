@@ -7,7 +7,7 @@ import MetamaskIcon from '../assets/images/metamask.svg'
 import PortisIcon from '../assets/images/portisIcon.png'
 import TrustWalletIcon from '../assets/images/trustWallet.png'
 import WalletConnectIcon from '../assets/images/wallet-connect.svg'
-import { injected, portis, walletconnect } from '../connectors'
+import { injected, portis, walletConnectConnector } from '../connectors'
 
 export const chainNames = {
   1: 'Mainnet',
@@ -68,7 +68,7 @@ const MAINNET_WALLETS = {
     color: '#3c8974',
   },
   WALLET_CONNECT: {
-    connector: walletconnect,
+    connector: walletConnectConnector,
     name: 'WalletConnect',
     icon: WalletConnectIcon,
     description: 'Connect to Trust Wallet, Rainbow Wallet and more...',
