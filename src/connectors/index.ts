@@ -5,7 +5,7 @@ import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { SafeConnector } from 'wagmi/connectors/safe'
-// import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+import { WalletConnectConnector as WC } from 'wagmi/connectors/walletConnect'
 import { infuraProvider } from 'wagmi/providers/infura'
 import { publicProvider } from 'wagmi/providers/public'
 
@@ -18,7 +18,7 @@ import {
   polygon,
   polygonMumbai,
 } from './../utils/networkConfig'
-import { INFURA_KEY, PORTIS_ID } from '../constants/config'
+import { INFURA_KEY, PORTIS_ID, WALLET_CONNECT_PROJECT_ID } from '../constants/config'
 
 const { chains, provider } = configureChains(
   [gnosis, goerli, mainnet, polygon, polygonMumbai],
@@ -34,12 +34,18 @@ const coinbaseWalletConnector = new CoinbaseWalletConnector({
     jsonRpcUrl: `${mainnet.rpcUrls.public.http}`,
   },
 })
-// const walletConnectConnector = new WalletConnectConnector({
-//   chains,
-//   options: {
-//     projectId: '074ec39a443bafaf1ed57ffc889942b6',
-//   },
-// })
+export const walletConnectConnector = new WC({
+  chains,
+  options: {
+    projectId: WALLET_CONNECT_PROJECT_ID,
+    metadata: {
+      name: 'gnosis-auction',
+      description: 'Decentralised token price discovery platform',
+      url: 'gnosis-auction.eth',
+      icons: [],
+    },
+  },
+})
 
 const safeConnector = new SafeConnector({
   chains,
@@ -55,7 +61,7 @@ export const wagmiClient = createClient({
     metamaskConnector,
     injected,
     coinbaseWalletConnector,
-    // walletConnectConnector,
+    walletConnectConnector,
     safeConnector,
   ],
   provider,
