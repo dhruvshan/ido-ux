@@ -38,6 +38,12 @@ export const walletConnectConnector = new WC({
   chains,
   options: {
     projectId: WALLET_CONNECT_PROJECT_ID,
+    metadata: {
+      name: 'gnosis-auction',
+      description: 'Decentralised token price discovery platform',
+      url: 'gnosis-auction.eth',
+      icons: [],
+    },
   },
 })
 
