@@ -77,7 +77,7 @@ const WALLET_VIEWS = {
 }
 
 const WalletModal: React.FC = () => {
-  const { connect, connectors, error } = useConnect()
+  const { connect, connectors, error, reset } = useConnect()
   const { address: account, connector, isConnected: active } = useAccount()
   const { chain } = useNetwork()
   const unsupported = chain?.unsupported || false
@@ -90,7 +90,6 @@ const WalletModal: React.FC = () => {
   const { errorWrongNetwork } = useNetworkCheck()
   const [termsAccepted, setTermsAccepted] = useState(false)
   const { chainId } = useOrderPlacementState()
-  const [walletConnectChainError, setWalletConnectChainError] = useState<NetworkError>()
 
   useEffect(() => {
     if (account && !previousAccount && walletModalOpen) {
@@ -101,11 +100,11 @@ const WalletModal: React.FC = () => {
   // always reset to account view
   useEffect(() => {
     if (walletModalOpen) {
+      reset()
       setPendingError(false)
       setWalletView(WALLET_VIEWS.ACCOUNT)
-      setWalletConnectChainError(undefined)
     }
-  }, [walletModalOpen])
+  }, [walletModalOpen, reset])
 
   const activePrevious = usePrevious(active)
   const connectorPrevious = usePrevious(connector)
@@ -179,7 +178,7 @@ const WalletModal: React.FC = () => {
     })
   }
 
-  const networkError = unsupported || errorWrongNetwork || walletConnectChainError
+  const networkError = unsupported || errorWrongNetwork
   const viewAccountTransactions = account && walletView === WALLET_VIEWS.ACCOUNT
   const connectingToWallet = walletView === WALLET_VIEWS.PENDING
   const title =
@@ -190,12 +189,11 @@ const WalletModal: React.FC = () => {
       : error
       ? 'Error connecting'
       : 'Connect a wallet'
-  const errorMessage =
-    unsupported || walletConnectChainError
-      ? 'Please connect to the appropriate Ethereum network.'
-      : errorWrongNetwork
-      ? errorWrongNetwork
-      : 'Error connecting. Try refreshing the page.'
+  const errorMessage = unsupported
+    ? 'Please connect to the appropriate Ethereum network.'
+    : errorWrongNetwork
+    ? errorWrongNetwork
+    : 'Error connecting. Try refreshing the page.'
 
   return (
     <Modal
@@ -205,7 +203,7 @@ const WalletModal: React.FC = () => {
     >
       <ModalTitle onClose={toggleWalletModal} title={title} />
       <Content>
-        {(error || walletConnectChainError) && (
+        {error && (
           <>
             <IconWrapper>
               <AlertIcon />
@@ -234,7 +232,7 @@ const WalletModal: React.FC = () => {
             </Footer>
           </>
         )}
-        {!error && !walletConnectChainError && connectingToWallet && (
+        {!error && connectingToWallet && (
           <PendingView
             connector={pendingWallet}
             error={pendingError}
