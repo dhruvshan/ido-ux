@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount, useConnect, useDisconnect, useNetwork, useProvider, useSigner } from 'wagmi'
 
-import { injected } from '../connectors'
+import { injected, walletConnectConnector } from '../connectors'
 import { useOrderPlacementState } from '../state/orderPlacement/hooks'
 import { useOrderActionHandlers } from '../state/orders/hooks'
 import { getLogger } from '../utils/logger'
@@ -40,9 +40,9 @@ export function useEagerConnect() {
     const previouslyUsedWalletConnect = localStorage.getItem('walletconnect')
 
     if (previouslyUsedWalletConnect && chainId) {
-      // activate(walletconnect[chainId], undefined, true).catch(() => {
-      //   setTried(true)
-      // })
+      connectAsync({ connector: walletConnectConnector }).catch(() => {
+        setTried(true)
+      })
     } else {
       injected?.isAuthorized().then((isAuthorized) => {
         if (isAuthorized) {

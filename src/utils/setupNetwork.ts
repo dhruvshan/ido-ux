@@ -1,7 +1,7 @@
 import { ChainId, NETWORK_CONFIGS } from './networkConfig'
 
 export const setupNetwork = async (chainId: ChainId) => {
-  const provider = (window as Window).ethereum
+  const provider = (window as Window)?.ethereum
   if (provider && provider.request) {
     try {
       if (chainId === ChainId.XDAI) {
