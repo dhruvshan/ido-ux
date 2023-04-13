@@ -21,7 +21,7 @@ import {
 import { INFURA_KEY, PORTIS_ID, WALLET_CONNECT_PROJECT_ID } from '../constants/config'
 
 const { chains, provider } = configureChains(
-  [gnosis, goerli, mainnet, polygon, polygonMumbai],
+  [polygonMumbai, gnosis, goerli, mainnet, polygon],
   [infuraProvider({ apiKey: INFURA_KEY }), publicProvider()],
 )
 

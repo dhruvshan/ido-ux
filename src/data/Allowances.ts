@@ -16,6 +16,7 @@ export function useTokenAllowance(
     abi: ERC20_ABI,
     functionName: 'allowance',
     args: [owner, spender],
+    watch: true,
     enabled: !!token?.address,
   })
 

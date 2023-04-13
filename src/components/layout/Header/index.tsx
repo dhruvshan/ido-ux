@@ -1,15 +1,13 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { HashLink } from 'react-router-hash-link'
-import { useAccount, useConnect } from 'wagmi'
+import { useAccount, useSwitchNetwork } from 'wagmi'
 
-import { injected } from '../../../connectors'
 import { chainNames } from '../../../constants'
 import { useWalletModalToggle } from '../../../state/application/hooks'
 import { useOrderPlacementState } from '../../../state/orderPlacement/hooks'
-import { setupNetwork } from '../../../utils/setupNetwork'
 import { getChainName } from '../../../utils/tools'
 import { ButtonConnect } from '../../buttons/ButtonConnect'
 import { ButtonMenu } from '../../buttons/ButtonMenu'
@@ -120,10 +118,10 @@ const ErrorText = styled.span`
 
 export const Component: React.FC<RouteComponentProps> = (props) => {
   const { location, ...restProps } = props
-  const { connect } = useConnect()
   const { isConnected } = useAccount()
   const { chainId } = useOrderPlacementState()
   const { errorWrongNetwork } = useNetworkCheck()
+  const { switchNetwork } = useSwitchNetwork()
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
   const toggleWalletModal = useWalletModalToggle()
 
@@ -148,16 +146,13 @@ export const Component: React.FC<RouteComponentProps> = (props) => {
     () => errorWrongNetwork === NetworkError.noChainMatch && isAuctionPage,
     [errorWrongNetwork, isAuctionPage],
   )
+  const trySwitchingNetworks = useCallback(async (): Promise<void> => {
+    if (switchNetwork && chainId && chainMismatch) switchNetwork(chainId)
+  }, [switchNetwork, chainId, chainMismatch])
+
   React.useEffect(() => {
-    const trySwitchingNetworks = async (): Promise<void> => {
-      const previouslyUsedWalletConnect = localStorage.getItem('walletconnect')
-      if (!previouslyUsedWalletConnect && chainMismatch && chainId == 100) {
-        await setupNetwork(chainId)
-        connect({ connector: injected })
-      }
-    }
     trySwitchingNetworks()
-  }, [chainMismatch, connect, chainId])
+  }, [trySwitchingNetworks])
 
   return (
     <>
@@ -171,7 +166,7 @@ export const Component: React.FC<RouteComponentProps> = (props) => {
           <Menu />
           {!isConnected && <ButtonConnectStyled onClick={toggleWalletModal} />}
           {isConnected && chainMismatch && (
-            <Error>
+            <Error onClick={trySwitchingNetworks}>
               <ErrorText>Connect to the {getChainName(chainId)} network</ErrorText>
               <Tooltip text={`Supported networks are: ${chainNamesFormatted}`} />
             </Error>

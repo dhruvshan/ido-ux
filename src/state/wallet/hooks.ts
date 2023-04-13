@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import { ChainId, JSBI, Token, TokenAmount, WETH } from '@josojo/honeyswap-sdk'
-import { useContractReads } from 'wagmi'
+import { useBalance, useContractReads } from 'wagmi'
 
 import ERC20_ABI from '../../constants/abis/erc20.json'
 import { MULTICALL_ABI } from '../../constants/multicall'
@@ -118,14 +118,18 @@ export function useTokenBalancesTreatWETHAsETH(
   }, [tokens, chainId])
 
   const balancesWithoutWETH = useTokenBalances(address, tokensWithoutWETH)
-  const ETHBalance = useETHBalances(includesWETH ? [address] : [])
+  const ETHBalance = useBalance({
+    //@ts-ignore
+    address,
+    enabled: includesWETH,
+  })
 
   return useMemo(() => {
     if (!chainId || !address) return {}
-    if (includesWETH) {
+    if (includesWETH && ETHBalance?.data) {
       // @ts-ignore
       const weth = WETH[chainId as ChainId]
-      const ethBalance = ETHBalance[address]
+      const ethBalance = JSBI.BigInt(ETHBalance.data.value)
       return {
         ...balancesWithoutWETH,
         ...(ethBalance && weth ? { [weth.address]: new TokenAmount(weth, ethBalance) } : null),

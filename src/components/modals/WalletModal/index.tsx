@@ -142,10 +142,8 @@ const WalletModal: React.FC = () => {
       // We check the metamask networkId
       setPendingWallet(connector) // set wallet for pending view
       setWalletView(WALLET_VIEWS.PENDING)
-      const hasSetup = await setupNetwork(chainId)
-      if (hasSetup) {
-        await connect({ connector })
-      }
+      await setupNetwork(chainId)
+      await connect({ connector })
     } catch (error) {
       setPendingError(true)
     }
