@@ -142,6 +142,9 @@ const WalletModal: React.FC = () => {
       setPendingWallet(connector) // set wallet for pending view
       setWalletView(WALLET_VIEWS.PENDING)
       await setupNetwork(chainId)
+      if (connector.id === 'walletConnect') {
+        toggleWalletModal()
+      }
       await connect({ connector })
     } catch (error) {
       setPendingError(true)
