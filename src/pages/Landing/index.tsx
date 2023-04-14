@@ -11,7 +11,6 @@ import { Send } from '../../components/icons/Send'
 import { ShapeIcon1 } from '../../components/icons/ShapeIcon1'
 import { ShapeIcon2 } from '../../components/icons/ShapeIcon2'
 import { ShapeIcon3 } from '../../components/icons/ShapeIcon3'
-import { Partners } from '../../components/partners'
 import { useAllAuctionInfo } from '../../hooks/useAllAuctionInfos'
 import { useInterestingAuctionInfo } from '../../hooks/useInterestingAuctionDetails'
 import { useSetNoDefaultNetworkId } from '../../state/orderPlacement/hooks'
@@ -268,7 +267,6 @@ export const Landing: React.FC = () => {
           <ShapeIcon3 />
         </ImageBlock>
       </BlockGrid>
-      <Partners />
       <ButtonWrapper>
         <AuctionsButton to="/overview#topAnchor">
           <SendIcon />
